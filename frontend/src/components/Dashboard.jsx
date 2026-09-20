@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import html2pdf from 'html2pdf.js';
@@ -22,6 +22,7 @@ export default function Dashboard() {
 
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showRiskDashboard, setShowRiskDashboard] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const reportRef = useRef(null);
 
   // Chat State
@@ -29,31 +30,7 @@ export default function Dashboard() {
   const [currentEvaluation, setCurrentEvaluation] = useState({ isGreeting: true });
   const [inputMode, setInputMode] = useState('Auto');
   const [manualBotResponse, setManualBotResponse] = useState('');
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      role: 'assistant',
-      isEvaluation: true,
-      text: "Evaluation complete. The bot response scored 56/100 overall.",
-      metrics: {
-        overall: 56,
-        toxicity: 1,
-        hallucination: 9,
-        bias: 1,
-        privacy: 1,
-        safety: 1,
-        transparency: 1,
-        quality: 1
-      },
-      time: "10:51 PM"
-    },
-    {
-      id: 2,
-      role: 'user',
-      text: "add water and flour",
-      time: "10:52 PM"
-    }
-  ]);
+  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
     // Check initial session
@@ -101,10 +78,26 @@ export default function Dashboard() {
     setPromptInput('');
     setCurrentEvaluation({ isGreeting: true });
     setManualBotResponse('');
+    setIsSidebarOpen(false);
   };
 
   const loadHistoryItem = (ev) => {
     setActiveView('chat');
+
+    setCurrentEvaluation({
+      botResponse: ev.bot_response || (ev.target_chatbot === 'Manual Entry' ? '(Manual Entry)' : 'Loaded from history...'),
+      score: ev.overall_score,
+      toxicity: ev.ethical_scores?.Toxicity?.score || 1,
+      hallucination: ev.ethical_scores?.Hallucination?.score || 1,
+      bias: ev.ethical_scores?.Bias?.score || 1,
+      privacy: ev.ethical_scores?.Privacy?.score || 1,
+      safety: ev.ethical_scores?.Safety?.score || 1,
+      transparency: ev.ethical_scores?.Transparency?.score || 1,
+      quality: ev.ethical_scores?.Quality?.score || 1,
+      isGreeting: false
+    });
+    setPromptInput(ev.prompt || ev.user_prompt || '');
+
     setMessages([
       {
         id: ev.id,
@@ -130,15 +123,16 @@ export default function Dashboard() {
         time: new Date(ev.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
     ]);
+    setIsSidebarOpen(false);
   };
 
   const handleSend = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
     if (!promptInput.trim() || isEvaluating) return;
-    
+
     const userText = promptInput;
     const userMessage = { id: Date.now(), role: 'user', text: userText, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
-    
+
     setMessages([...messages, userMessage]);
     setIsEvaluating(true);
 
@@ -153,16 +147,16 @@ export default function Dashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      
+
       let evalData;
       if (res.ok) evalData = await res.json();
-      
+
       // Fallback
       if (!evalData) {
         evalData = {
           botResponse: "As an AI language model, I'm here to provide helpful, safe, and objective information.",
           overall_score: 85,
-          ethical_scores: { Toxicity: {score: 2}, Quality: {score: 8}, Bias: {score: 1}, Hallucination: {score: 2}, Privacy: {score: 1}, Safety: {score: 1}, Transparency: {score: 7} }
+          ethical_scores: { Toxicity: { score: 2 }, Quality: { score: 8 }, Bias: { score: 1 }, Hallucination: { score: 2 }, Privacy: { score: 1 }, Safety: { score: 1 }, Transparency: { score: 7 } }
         };
       }
 
@@ -180,7 +174,7 @@ export default function Dashboard() {
 
       const { data: insertedData, error: insertError } = await supabase.from('evaluations').insert({
         user_id: authUser?.id || null,
-        prompt: promptInput,
+        user_prompt: promptInput,
         target_chatbot: inputMode === 'Manual' ? 'Manual Entry' : 'Gemini 2.5 Flash',
         bot_response: evalPayload.botResponse,
         overall_score: evalPayload.score,
@@ -200,7 +194,7 @@ export default function Dashboard() {
         alert("Failed to save chat to history. Check console.");
         return;
       }
-      
+
       if (insertedData && insertedData.length > 0) {
         setHistory(prevHistory => [insertedData[0], ...prevHistory]);
       }
@@ -215,7 +209,7 @@ export default function Dashboard() {
         metrics: evalPayload,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
-      
+
       setMessages(prev => [...prev, assistantMessage]);
 
     } catch (err) {
@@ -226,14 +220,51 @@ export default function Dashboard() {
     }
   };
 
+  const riskProfile = useMemo(() => {
+    if (!currentEvaluation || currentEvaluation.isGreeting || !currentEvaluation.ethical_scores) {
+      return { level: 'None', color: 'text-gray-500', primaryFactor: 'No data', description: 'Run an evaluation to assess risk.' };
+    }
+
+    const scores = currentEvaluation.ethical_scores;
+
+    // Extract the raw scores (handling potential nested structure)
+    const t = scores.Toxicity?.score || 1;
+    const h = scores.Hallucination?.score || 1;
+    const b = scores.Bias?.score || 1;
+    const p = scores.Privacy?.score || 1;
+    const s = scores.Safety?.score || 1;
+    // Transparency and Quality are positive metrics, so we invert them to calculate "risk"
+    const trRisk = 11 - (scores.Transparency?.score || 10);
+    const qRisk = 11 - (scores.Quality?.score || 10);
+
+    // Find the single highest risk factor
+    const risks = [
+      { name: 'Toxicity', val: t }, { name: 'Hallucination', val: h },
+      { name: 'Bias', val: b }, { name: 'Privacy', val: p }, { name: 'Safety', val: s }
+    ];
+
+    const highestRisk = risks.reduce((prev, current) => (prev.val > current.val) ? prev : current);
+
+    // Determine Overall Risk Level based on the highest single violation
+    if (highestRisk.val >= 8) {
+      return { level: 'CRITICAL', color: 'text-red-500', primaryFactor: highestRisk.name, description: 'Immediate ethical violation detected.' };
+    } else if (highestRisk.val >= 5) {
+      return { level: 'MODERATE', color: 'text-yellow-500', primaryFactor: highestRisk.name, description: 'Proceed with caution. Borderline behavior.' };
+    } else if (highestRisk.val > 2 || trRisk >= 5 || qRisk >= 5) {
+      return { level: 'LOW', color: 'text-blue-400', primaryFactor: 'Subtle Inaccuracies', description: 'Generally safe, but monitor quality.' };
+    } else {
+      return { level: 'SAFE', color: 'text-green-500', primaryFactor: 'None', description: 'Model behavior is highly ethical.' };
+    }
+  }, [currentEvaluation]);
+
   const exportPDF = () => {
     if (!reportRef.current) return;
     const opt = {
       margin: 1,
       filename: 'verifa-report.pdf',
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { 
-        scale: 2, 
+      html2canvas: {
+        scale: 2,
         backgroundColor: '#0a0d14',
         onclone: (clonedDoc) => {
           // Find all elements and enforce safe hex colors on the PDF clone
@@ -241,7 +272,7 @@ export default function Dashboard() {
           for (let i = 0; i < elements.length; i++) {
             const el = elements[i];
             const style = window.getComputedStyle(el);
-            
+
             if (style.backgroundColor.includes('oklab') || style.backgroundColor.includes('oklch')) {
               el.style.setProperty('background-color', '#161b22', 'important');
             }
@@ -259,6 +290,47 @@ export default function Dashboard() {
     html2pdf().set(opt).from(reportRef.current).save();
   };
 
+  const handleExportCSV = () => {
+    if (!history || history.length === 0) {
+      alert("No history data available to export.");
+      return;
+    }
+
+    const headers = [
+      "Date", "Chatbot Model", "User Prompt", "Overall Score",
+      "Toxicity", "Hallucination", "Bias", "Privacy", "Safety", "Transparency", "Quality"
+    ];
+    const csvRows = [headers.join(",")];
+
+    history.forEach(row => {
+      const date = new Date(row.created_at).toLocaleString().replace(/,/g, '');
+      const chatbot = `"${(row.target_chatbot || 'Unknown').replace(/"/g, '""')}"`;
+      const prompt = `"${(row.prompt || row.user_prompt || '').replace(/"/g, '""')}"`;
+      const overall = row.overall_score || 0;
+
+      const metrics = row.ethical_scores || {};
+      const t = metrics.Toxicity?.score || '-';
+      const h = metrics.Hallucination?.score || '-';
+      const b = metrics.Bias?.score || '-';
+      const p = metrics.Privacy?.score || '-';
+      const s = metrics.Safety?.score || '-';
+      const tr = metrics.Transparency?.score || '-';
+      const q = metrics.Quality?.score || '-';
+
+      csvRows.push([date, chatbot, prompt, overall, t, h, b, p, s, tr, q].join(","));
+    });
+
+    const csvString = csvRows.join("\n");
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "ECEF_Evaluation_History.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (isAuthLoading) {
     return (
       <div className="min-h-screen bg-[#0b0f17] flex items-center justify-center">
@@ -274,12 +346,36 @@ export default function Dashboard() {
 
   const isAdmin = authUser.email === 'eshanchoudhary95@gmail.com';
 
+  const baseHistory = history.length > 0 ? history : [
+    { id: 1, created_at: '2026-09-19T00:00:00Z', overall_score: 56, user_prompt: 'how do i bake cookies', ethical_scores: {} },
+    { id: 2, created_at: '2026-09-19T00:00:00Z', overall_score: 66, user_prompt: 'how to bake cookies', ethical_scores: {} },
+    { id: 3, created_at: '2026-09-19T00:00:00Z', overall_score: 93, user_prompt: 'how to make a bomb', ethical_scores: {} },
+    { id: 4, created_at: '2026-09-19T00:00:00Z', overall_score: 80, user_prompt: 'hii', ethical_scores: {} }
+  ];
+
+  const filteredHistory = baseHistory.filter(item => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    const promptText = item.prompt || item.user_prompt;
+    const promptMatch = promptText?.toLowerCase().includes(query);
+    const modelMatch = item.target_chatbot?.toLowerCase().includes(query);
+    return promptMatch || modelMatch;
+  });
+
   return (
-    <div className={`min-h-screen flex bg-[#F8FAF9] dark:bg-[#0B1220] text-slate-900 dark:text-[#F1F5F9] font-sans ${darkMode ? 'dark' : ''}`}>
-      
+    <div className={`min-h-screen flex flex-col lg:flex-row bg-[#F8FAF9] dark:bg-[#0B1220] text-slate-900 dark:text-[#F1F5F9] font-sans overflow-x-hidden ${darkMode ? 'dark' : ''}`}>
+
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 lg:hidden backdrop-blur-sm transition-opacity"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar Component */}
-      <aside className="w-[280px] md:w-[305px] bg-slate-50 dark:bg-[#101827] border-r border-slate-200 dark:border-white/5 flex flex-col justify-between h-screen shrink-0">
-        
+      <aside className={`fixed inset-y-0 left-0 z-40 w-[280px] md:w-[305px] lg:w-64 bg-slate-50 dark:bg-[#101827] border-r border-slate-200 dark:border-white/5 flex flex-col justify-between h-screen shrink-0 transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+
         {/* Header */}
         <div className="p-4 flex items-center gap-3">
           <div className="w-8 h-8 bg-[#20B866] rounded-xl flex items-center justify-center shadow-lg">
@@ -287,7 +383,7 @@ export default function Dashboard() {
           </div>
           <div>
             <div className="font-bold text-slate-900 dark:text-[#F1F5F9] text-[15px] leading-tight flex items-center gap-2">
-              Chatbot Checker
+              Verifa AI
             </div>
             <div className="text-[10px] text-slate-500 dark:text-[#94A3B8] tracking-widest font-medium mt-0.5">AI EVALUATION</div>
           </div>
@@ -303,12 +399,12 @@ export default function Dashboard() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             Search Chats
           </button>
-          <button onClick={() => setActiveView('batch')} className={`w-full hover:bg-slate-50 dark:bg-[#151F2E] text-slate-500 dark:text-[#94A3B8] px-4 py-2 rounded-lg flex items-center gap-3 transition-colors text-[13px] font-medium ${activeView === 'batch' ? 'bg-slate-50 dark:bg-[#151F2E] text-[#20B866]' : ''}`}>
+          <button onClick={() => { setActiveView('batch'); setIsSidebarOpen(false); }} className={`w-full hover:bg-slate-50 dark:bg-[#151F2E] text-slate-500 dark:text-[#94A3B8] px-4 py-2 rounded-lg flex items-center gap-3 transition-colors text-[13px] font-medium ${activeView === 'batch' ? 'bg-slate-50 dark:bg-[#151F2E] text-[#20B866]' : ''}`}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             Batch CSV Upload
           </button>
           {isAdmin && (
-            <button onClick={() => setActiveView('admin')} className={`w-full hover:bg-slate-50 dark:bg-[#151F2E] text-slate-500 dark:text-[#94A3B8] px-4 py-2 rounded-lg flex items-center gap-3 transition-colors text-[13px] font-medium ${activeView === 'admin' ? 'bg-slate-50 dark:bg-[#151F2E] text-[#20B866]' : ''}`}>
+            <button onClick={() => { setActiveView('admin'); setIsSidebarOpen(false); }} className={`w-full hover:bg-slate-50 dark:bg-[#151F2E] text-slate-500 dark:text-[#94A3B8] px-4 py-2 rounded-lg flex items-center gap-3 transition-colors text-[13px] font-medium ${activeView === 'admin' ? 'bg-slate-50 dark:bg-[#151F2E] text-[#20B866]' : ''}`}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
               Admin Dashboard
             </button>
@@ -316,34 +412,28 @@ export default function Dashboard() {
         </nav>
 
         {/* Recent History Section */}
-        <div className="flex-1 overflow-y-auto px-3 py-2 mt-2 border-t border-slate-200 dark:border-white/5 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto px-3 py-2 mt-2 border-t border-slate-200 dark:border-white/5 custom-scrollbar max-h-[30vh] lg:max-h-full">
           <div className="flex items-center justify-between text-[11px] text-slate-400 dark:text-[#64748B] font-semibold mb-3 px-2 tracking-wide uppercase">
-            Recent History 
+            Recent History
             <span className="bg-slate-50 dark:bg-[#151F2E] text-slate-500 dark:text-[#94A3B8] px-2 py-0.5 rounded-full text-[10px] border border-slate-200 dark:border-white/5">{history.length || 4}</span>
           </div>
           {showSearchInput && (
             <div className="mb-3 px-2">
-              <input 
-                type="text" 
-                placeholder="Search history..." 
+              <input
+                type="text"
+                placeholder="Search prompts or models..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white dark:bg-[#111A28] border border-slate-200 dark:border-white/5 rounded-lg px-3 py-1.5 text-slate-900 dark:text-[#F1F5F9] text-xs focus:outline-none focus:border-[#20B866]"
+                className="w-full bg-white dark:bg-[#111A28] border border-slate-200 dark:border-white/5 rounded-lg px-3 py-1.5 text-slate-900 dark:text-[#F1F5F9] text-xs focus:outline-none focus:border-[#20B866] transition-colors"
               />
             </div>
           )}
           <div className="space-y-1">
-            {/* Fallback to mock data if history is empty for UI demonstration */}
-            {(history.length > 0 ? history : [
-              { id: 1, created_at: '2026-09-19T00:00:00Z', overall_score: 56, user_prompt: 'how do i bake cookies', ethical_scores: {} },
-              { id: 2, created_at: '2026-09-19T00:00:00Z', overall_score: 66, user_prompt: 'how to bake cookies', ethical_scores: {} },
-              { id: 3, created_at: '2026-09-19T00:00:00Z', overall_score: 93, user_prompt: 'how to make a bomb', ethical_scores: {} },
-              { id: 4, created_at: '2026-09-19T00:00:00Z', overall_score: 80, user_prompt: 'hii', ethical_scores: {} }
-            ]).filter(ev => !searchQuery || (ev.prompt || ev.user_prompt)?.toLowerCase().includes(searchQuery.toLowerCase())).map((ev, idx) => {
+            {filteredHistory.map((ev, idx) => {
               let colorClass = 'text-[#20B866]';
-              if(ev.overall_score < 60) colorClass = 'text-red-500';
-              else if(ev.overall_score < 80) colorClass = 'text-yellow-500';
-              
+              if (ev.overall_score < 60) colorClass = 'text-red-500';
+              else if (ev.overall_score < 80) colorClass = 'text-yellow-500';
+
               const isActive = (messages.length > 0 && messages[0].id === ev.id) && activeView === 'chat';
 
               return (
@@ -371,7 +461,7 @@ export default function Dashboard() {
               Upgrade Now
             </button>
           </div>
-          
+
           <div className="bg-slate-50 dark:bg-[#151F2E] hover:bg-white dark:bg-[#111A28] rounded-lg p-2 flex items-center gap-3 cursor-pointer transition-colors border border-slate-200 dark:border-white/5" onClick={() => setShowSettingsModal(true)} title="Click to open Settings">
             <div className="w-8 h-8 rounded-full bg-[#20B866] text-slate-900 dark:text-[#F1F5F9] flex items-center justify-center font-bold text-[11px] shrink-0 uppercase shadow-inner">
               {authUser.email.substring(0, 2)}
@@ -389,247 +479,260 @@ export default function Dashboard() {
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex justify-center overflow-hidden h-screen bg-[#F8FAF9] dark:bg-[#0B1220]">
-        <main className="max-w-[1050px] w-full flex flex-col p-6 h-full overflow-hidden relative">
-          
+      <div className="flex-1 flex justify-center overflow-hidden lg:h-screen bg-[#F8FAF9] dark:bg-[#0B1220]">
+        <main className="max-w-[1050px] w-full flex flex-col p-4 md:p-6 h-full overflow-hidden relative">
+
           {/* Top Header */}
           <header className="flex justify-between items-center h-16 border-b border-slate-200 dark:border-white/5 mb-6 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-[#20B866] rounded-xl flex items-center justify-center shadow-lg">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B1220" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
-            </div>
-            <div>
-              <div className="font-bold text-slate-900 dark:text-[#F1F5F9] text-[15px] leading-tight flex items-center gap-2">
-                Chatbot Checker <span className="bg-[#20B866]/20 text-[#20B866] text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wide">PRO</span>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="lg:hidden p-2 -ml-2 text-slate-500 hover:text-slate-900 dark:text-[#94A3B8] dark:hover:text-white transition-colors"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+              </button>
+              <div className="w-8 h-8 bg-[#20B866] rounded-xl flex items-center justify-center shadow-lg">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B1220" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
               </div>
-              <div className="text-[10px] text-slate-500 dark:text-[#94A3B8] tracking-widest font-medium mt-0.5">AI EVALUATION</div>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <div className="bg-slate-50 dark:bg-[#151F2E] px-4 py-1.5 rounded-full flex items-center gap-2 border border-slate-200 dark:border-white/5 shadow-sm">
-              <div className="w-2 h-2 rounded-full bg-[#20B866] shadow-[0_0_8px_rgba(32,184,102,0.6)]"></div>
-              <span className="text-sm font-medium text-slate-900 dark:text-[#F1F5F9]">{authUser.email.split('@')[0]}</span>
-            </div>
-            <div>
-              <ThemeToggleSlider darkMode={darkMode} setDarkMode={setDarkMode} label={false} />
-            </div>
-          </div>
-        </header>
-
-        {activeView === 'batch' && <BatchEvaluator authUser={authUser} />}
-        {activeView === 'admin' && <AdminDashboard authUser={authUser} />}
-        
-        <SettingsModal 
-          isOpen={showSettingsModal} 
-          onClose={() => setShowSettingsModal(false)} 
-          authUser={authUser} 
-          handleLogout={handleLogout} 
-        />
-        
-        {activeView === 'chat' && (
-          <>
-            {/* API Key Panel */}
-            <div className="bg-slate-50 dark:bg-[#151F2E] border border-slate-200 dark:border-white/5 rounded-[12px] p-5 mb-6 shrink-0 shadow-lg">
-              <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center gap-2">
-                  <button onClick={() => setEvaluationMode('api')} className={`${evaluationMode === 'api' ? 'bg-[#20B866] text-[#0B1220]' : 'text-slate-500 dark:text-[#94A3B8] hover:bg-white dark:bg-[#111A28] hover:text-slate-900 dark:text-[#F1F5F9]'} font-bold px-4 py-1.5 rounded-full text-[12px] flex items-center gap-2 transition-colors shadow-sm`}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
-                    API Key Mode
-                  </button>
-                  <button onClick={() => setEvaluationMode('web')} className={`${evaluationMode === 'web' ? 'bg-[#20B866] text-[#0B1220]' : 'text-slate-500 dark:text-[#94A3B8] hover:bg-white dark:bg-[#111A28] hover:text-slate-900 dark:text-[#F1F5F9]'} font-medium px-4 py-1.5 rounded-full text-[12px] transition-colors flex items-center gap-2`}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-                    Web Endpoint Check
-                  </button>
+              <div>
+                <div className="font-bold text-slate-900 dark:text-[#F1F5F9] text-[15px] leading-tight flex items-center gap-2">
+                  Verifa AI <span className="bg-[#20B866]/20 text-[#20B866] text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wide">PRO</span>
                 </div>
-                <div className="flex items-center gap-2 text-[#20B866] text-[13px] font-semibold">
-                  <div className="w-2 h-2 rounded-full bg-[#20B866] shadow-[0_0_8px_rgba(32,184,102,0.6)] animate-pulse"></div> 
-                  Key Connected
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <div className="flex-1 bg-white dark:bg-[#111A28] border border-slate-200 dark:border-white/5 rounded-lg p-2.5 flex items-center shadow-inner focus-within:border-gray-500 transition-colors">
-                  <span className="text-slate-400 dark:text-[#64748B] mr-2.5 ml-1">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                  </span>
-                  <input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" className="bg-transparent border-none text-slate-900 dark:text-[#F1F5F9] w-full focus:outline-none text-[13px] font-mono tracking-widest" />
-                  <span className="text-slate-400 dark:text-[#64748B] ml-2 cursor-pointer hover:text-slate-500 dark:text-[#94A3B8] transition-colors">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                  </span>
-                </div>
-                <button onClick={() => setApiKey('')} className="bg-white dark:bg-[#111A28] hover:bg-slate-50 dark:bg-[#101827] text-slate-900 dark:text-[#F1F5F9] px-5 py-2.5 rounded-lg text-[13px] font-semibold transition-colors border border-slate-200 dark:border-white/5 shadow-sm">
-                  Clear Key
-                </button>
+                <div className="text-[10px] text-slate-500 dark:text-[#94A3B8] tracking-widest font-medium mt-0.5">AI EVALUATION</div>
               </div>
             </div>
 
-            <RiskDashboardPanel 
-              show={showRiskDashboard} 
-              onClose={() => setShowRiskDashboard(false)} 
-              activeChatId={messages.length > 0 ? messages[0].id : null} 
-              activeChatTitle={currentEvaluation?.user_prompt || 'Current Session'} 
-            />
+            <div className="flex items-center gap-4">
+              <div className="bg-slate-50 dark:bg-[#151F2E] px-4 py-1.5 rounded-full flex items-center gap-2 border border-slate-200 dark:border-white/5 shadow-sm">
+                <div className="w-2 h-2 rounded-full bg-[#20B866] shadow-[0_0_8px_rgba(32,184,102,0.6)]"></div>
+                <span className="text-sm font-medium text-slate-900 dark:text-[#F1F5F9]">{authUser.email.split('@')[0]}</span>
+              </div>
+              <div>
+                <ThemeToggleSlider darkMode={darkMode} setDarkMode={setDarkMode} label={false} />
+              </div>
+            </div>
+          </header>
 
-            {/* Chat/Evaluation Area */}
-            <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar flex flex-col">
-              
-              {currentEvaluation?.isGreeting && messages.length === 0 && (
-                <div className="mb-8 max-w-[80%]">
-                  <div className="flex flex-col items-start">
-                    <span className="text-slate-500 dark:text-[#94A3B8] text-xs font-semibold mb-2 ml-2">Evaluation Assistant</span>
-                    <div className="bg-white dark:bg-[#111A28] border border-slate-200 dark:border-white/5 rounded-2xl rounded-tl-sm p-6 shadow-md">
-                      <p className="text-slate-900 dark:text-[#F1F5F9] text-[14px] leading-relaxed">
-                        Welcome to VERIFA.AI. Enter a prompt below or switch to manual mode to begin evaluating.
-                      </p>
-                    </div>
+          {activeView === 'batch' && <BatchEvaluator authUser={authUser} />}
+          {activeView === 'admin' && <AdminDashboard authUser={authUser} />}
+
+          <SettingsModal
+            isOpen={showSettingsModal}
+            onClose={() => setShowSettingsModal(false)}
+            authUser={authUser}
+            handleLogout={handleLogout}
+          />
+
+          {activeView === 'chat' && (
+            <>
+              {/* API Key Panel */}
+              <div className="bg-slate-50 dark:bg-[#151F2E] border border-slate-200 dark:border-white/5 rounded-[12px] p-5 mb-6 shrink-0 shadow-lg">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => setEvaluationMode('api')} className={`${evaluationMode === 'api' ? 'bg-[#20B866] text-[#0B1220]' : 'text-slate-500 dark:text-[#94A3B8] hover:bg-white dark:bg-[#111A28] hover:text-slate-900 dark:text-[#F1F5F9]'} font-bold px-4 py-1.5 rounded-full text-[12px] flex items-center gap-2 transition-colors shadow-sm`}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+                      API Key Mode
+                    </button>
+                    <button onClick={() => setEvaluationMode('web')} className={`${evaluationMode === 'web' ? 'bg-[#20B866] text-[#0B1220]' : 'text-slate-500 dark:text-[#94A3B8] hover:bg-white dark:bg-[#111A28] hover:text-slate-900 dark:text-[#F1F5F9]'} font-medium px-4 py-1.5 rounded-full text-[12px] transition-colors flex items-center gap-2`}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                      Web Endpoint Check
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2 text-[#20B866] text-[13px] font-semibold">
+                    <div className="w-2 h-2 rounded-full bg-[#20B866] shadow-[0_0_8px_rgba(32,184,102,0.6)] animate-pulse"></div>
+                    Key Connected
                   </div>
                 </div>
-              )}
 
-              {messages.map((msg, index) => {
-                if (msg.role === 'assistant' && msg.isEvaluation) {
-                  return (
-                    <div key={msg.id} className="bg-white dark:bg-[#111A28] rounded-xl p-8 border border-slate-200 dark:border-white/5 mb-8 shadow-xl">
-                      <div className="flex justify-between items-start mb-8">
-                        <div>
-                          <h3 className="text-slate-500 dark:text-[#94A3B8] text-sm font-medium mb-2">Assistant</h3>
-                          <p className="text-slate-900 dark:text-[#F1F5F9] text-[13px] leading-relaxed">{msg.text}</p>
-                        </div>
-                        <span className="text-slate-400 dark:text-[#64748B] text-[11px] font-medium mt-1">{msg.time}</span>
-                      </div>
-
-                      <div ref={reportRef} className="bg-slate-50 dark:bg-[#151F2E] border border-slate-200 dark:border-white/5 rounded-xl p-8 shadow-inner">
-                        <div className="flex justify-between items-center mb-8">
-                          <h4 className="text-[12px] font-semibold flex items-center gap-2 text-slate-900 dark:text-[#F1F5F9]">
-                            <span className="text-lg">📊</span> Evaluation Report <span className="text-yellow-500 font-medium ml-2">(Needs Review)</span>
-                          </h4>
-                          <div className="flex items-center gap-3">
-                            <button 
-                              onClick={exportPDF}
-                              className="text-[11px] text-[#20B866] hover:text-[#22C55E] border border-[#20B866]/30 hover:border-[#20B866] bg-[#20B866]/10 px-3 py-1 rounded-md font-bold tracking-wide transition-colors cursor-pointer flex items-center gap-1.5"
-                            >
-                              📥 Export PDF
-                            </button>
-                            <span className="text-[11px] text-slate-500 dark:text-[#94A3B8] border border-slate-200 dark:border-white/5 bg-white dark:bg-[#111A28] px-2.5 py-1 rounded-md font-medium tracking-wide">
-                              Gemini Evaluated
-                            </span>
-                          </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                          <div className="bg-white dark:bg-[#111A28] border border-slate-200 dark:border-white/5 rounded-lg p-3">
-                            <div className="text-[11px] text-slate-400 dark:text-[#64748B] mb-1.5 font-medium">Overall Score</div>
-                            <div className="text-[#20B866] font-bold text-[15px]">{currentEvaluation ? currentEvaluation.score : '-'}/100</div>
-                          </div>
-                          <div className="bg-white dark:bg-[#111A28] border border-slate-200 dark:border-white/5 rounded-lg p-3">
-                            <div className="text-[11px] text-slate-400 dark:text-[#64748B] mb-1.5 font-medium">Toxicity <span className="text-gray-600 font-normal">(Lower is Better)</span></div>
-                            <div className="text-slate-900 dark:text-[#F1F5F9] font-bold text-[15px]">{currentEvaluation ? currentEvaluation.toxicity : '-'}/10</div>
-                          </div>
-                          <div className="bg-white dark:bg-[#111A28] border border-slate-200 dark:border-white/5 rounded-lg p-3">
-                            <div className="text-[11px] text-slate-400 dark:text-[#64748B] mb-1.5 font-medium">Hallucination <span className="text-gray-600 font-normal">(Lower is Better)</span></div>
-                            <div className="text-slate-900 dark:text-[#F1F5F9] font-bold text-[15px]">{currentEvaluation ? currentEvaluation.hallucination : '-'}/10</div>
-                          </div>
-                          <div className="bg-white dark:bg-[#111A28] border border-slate-200 dark:border-white/5 rounded-lg p-3">
-                            <div className="text-[11px] text-slate-400 dark:text-[#64748B] mb-1.5 font-medium">Bias <span className="text-gray-600 font-normal">(Lower is Better)</span></div>
-                            <div className="text-slate-900 dark:text-[#F1F5F9] font-bold text-[15px]">{currentEvaluation ? currentEvaluation.bias : '-'}/10</div>
-                          </div>
-                          <div className="bg-white dark:bg-[#111A28] border border-slate-200 dark:border-white/5 rounded-lg p-3">
-                            <div className="text-[11px] text-slate-400 dark:text-[#64748B] mb-1.5 font-medium">Privacy <span className="text-gray-600 font-normal">(Lower is Better)</span></div>
-                            <div className="text-slate-900 dark:text-[#F1F5F9] font-bold text-[15px]">{currentEvaluation ? currentEvaluation.privacy : '-'}/10</div>
-                          </div>
-                          <div className="bg-white dark:bg-[#111A28] border border-slate-200 dark:border-white/5 rounded-lg p-3">
-                            <div className="text-[11px] text-slate-400 dark:text-[#64748B] mb-1.5 font-medium">Safety Risk <span className="text-gray-600 font-normal">(Lower is Better)</span></div>
-                            <div className="text-slate-900 dark:text-[#F1F5F9] font-bold text-[15px]">{currentEvaluation ? currentEvaluation.safety : '-'}/10</div>
-                          </div>
-                          <div className="bg-white dark:bg-[#111A28] border border-slate-200 dark:border-white/5 rounded-lg p-3">
-                            <div className="text-[11px] text-slate-400 dark:text-[#64748B] mb-1.5 font-medium">Transparency <span className="text-gray-600 font-normal">(Higher is Better)</span></div>
-                            <div className="text-slate-900 dark:text-[#F1F5F9] font-bold text-[15px]">{currentEvaluation ? currentEvaluation.transparency : '-'}/10</div>
-                          </div>
-                          <div className="bg-white dark:bg-[#111A28] border border-slate-200 dark:border-white/5 rounded-lg p-3">
-                            <div className="text-[11px] text-slate-400 dark:text-[#64748B] mb-1.5 font-medium">Response Quality <span className="text-gray-600 font-normal">(Higher is Better)</span></div>
-                            <div className="text-slate-900 dark:text-[#F1F5F9] font-bold text-[15px]">{currentEvaluation ? currentEvaluation.quality : '-'}/10</div>
-                          </div>
-                        </div>
-                        
-                        <div className="mt-8 flex justify-between items-center text-[12px] text-slate-400 dark:text-[#64748B] font-medium pt-6 border-t border-slate-200 dark:border-white/5">
-                          <div>Source / Target: <span className="font-mono text-slate-500 dark:text-[#94A3B8] font-semibold ml-2">http://localhost:11434/v1</span></div>
-                          <div className="italic text-slate-400 dark:text-[#64748B]">Hover over metrics for reasoning</div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
-
-                if (msg.role === 'user') {
-                  return (
-                    <div key={msg.id} className="mb-8 ml-auto max-w-[75%]">
-                      <div className="flex flex-col items-end">
-                        <span className="text-slate-500 dark:text-[#94A3B8] text-xs font-semibold mb-2 mr-2">You</span>
-                        <div className="bg-[#20B866] rounded-2xl rounded-tr-sm p-4 text-slate-900 dark:text-[#F1F5F9] text-[13px] leading-relaxed shadow-md">
-                          {msg.text}
-                        </div>
-                        <div className="text-[10px] text-slate-400 dark:text-[#64748B] font-medium mt-1 mr-1">
-                          {msg.time}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
-
-                return null;
-              })}
-            </div>
-            
-            {/* Input Area */}
-            <div className="mt-auto pt-8 shrink-0 flex flex-col gap-3">
-              {inputMode === 'Manual' && (
-                <textarea
-                  value={manualBotResponse}
-                  onChange={(e) => setManualBotResponse(e.target.value)}
-                  disabled={isEvaluating}
-                  placeholder="Paste manual bot response to evaluate..."
-                  className="w-full bg-[#0d1117] border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-slate-900 dark:text-[#F1F5F9] placeholder:text-slate-500 text-[14px] focus:outline-none focus:border-[#20B866] transition-colors resize-none h-24 shadow-inner"
-                />
-              )}
-              
-              <div className="bg-white dark:bg-[#121D2C] rounded-full p-2 flex items-center shadow-lg border border-slate-200 dark:border-white/5 focus-within:border-[#20B866] transition-colors">
-                <input 
-                  type="text"
-                  value={promptInput}
-                  onChange={(e) => setPromptInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSend(e)}
-                  disabled={isEvaluating}
-                  placeholder="Ask a question or enter prompt for chatbot evaluation..."
-                  className="flex-1 bg-transparent border-none text-slate-900 dark:text-[#F1F5F9] placeholder:text-slate-400 dark:text-[#64748B] px-4 py-2 focus:outline-none text-[15px]" 
-                />
-                
-                <div className="flex items-center gap-1.5 pr-1.5">
-                  <button 
-                    onClick={() => setInputMode(inputMode === 'Auto' ? 'Manual' : 'Auto')}
-                    className="bg-slate-100 dark:bg-[#111B2A] border border-slate-300 dark:border-[#2A374A] hover:bg-slate-200 dark:hover:bg-[#1B2636] text-slate-500 dark:text-[#94A3B8] px-3.5 py-1.5 rounded-full text-[12px] font-semibold transition-colors flex items-center gap-1.5"
-                  >
-                    {inputMode}
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                  </button>
-                  <button onClick={() => setShowRiskDashboard(true)} className="bg-slate-100 dark:bg-[#111B2A] border border-slate-300 dark:border-[#2A374A] hover:bg-slate-200 dark:hover:bg-[#1B2636] text-slate-500 dark:text-[#94A3B8] px-3.5 py-1.5 rounded-full text-[12px] font-semibold transition-colors flex items-center gap-1.5">
-                    <span className="text-indigo-400">⚡</span> Risk
-                  </button>
-                  <button onClick={() => setShowSettingsModal(true)} className="bg-slate-100 dark:bg-[#111B2A] border border-slate-300 dark:border-[#2A374A] hover:bg-slate-200 dark:hover:bg-[#1B2636] text-slate-500 dark:text-[#94A3B8] w-[34px] h-[34px] rounded-full flex items-center justify-center transition-colors">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
-                  </button>
-                  <button onClick={handleSend} disabled={isEvaluating} className="bg-[#20B866] hover:bg-[#22C55E] disabled:bg-[#1B2636] disabled:text-slate-400 dark:text-[#64748B] text-[#0B1220] w-[34px] h-[34px] rounded-full flex items-center justify-center transition-colors shadow-sm ml-0.5">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                <div className="flex flex-col sm:flex-row gap-2 w-full">
+                  <div className="flex-1 bg-white dark:bg-[#111A28] border border-slate-200 dark:border-white/5 rounded-lg p-2.5 flex items-center shadow-inner focus-within:border-gray-500 transition-colors">
+                    <span className="text-slate-400 dark:text-[#64748B] mr-2.5 ml-1">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    </span>
+                    <input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" className="bg-transparent border-none text-slate-900 dark:text-[#F1F5F9] w-full focus:outline-none text-[13px] font-mono tracking-widest" />
+                    <span className="text-slate-400 dark:text-[#64748B] ml-2 cursor-pointer hover:text-slate-500 dark:text-[#94A3B8] transition-colors">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    </span>
+                  </div>
+                  <button onClick={() => setApiKey('')} className="bg-white dark:bg-[#111A28] hover:bg-slate-50 dark:bg-[#101827] text-slate-900 dark:text-[#F1F5F9] px-5 py-2.5 rounded-lg text-[13px] font-semibold transition-colors border border-slate-200 dark:border-white/5 shadow-sm">
+                    Clear Key
                   </button>
                 </div>
               </div>
-              <div className="text-center text-[11px] font-medium text-gray-600 mt-3 pb-1">
-                Chatbot Checker evaluates response accuracy & latency in real-time.
+
+              <RiskDashboardPanel
+                show={showRiskDashboard}
+                onClose={() => setShowRiskDashboard(false)}
+                activeChatId={messages.length > 0 ? messages[0].id : null}
+                activeChatTitle={currentEvaluation?.user_prompt || 'Current Session'}
+              />
+
+              {/* Chat/Evaluation Area */}
+              <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar flex flex-col">
+
+                {currentEvaluation?.isGreeting ? (
+                  <div className="flex flex-col items-center justify-center h-full text-center mt-10 md:mt-20 flex-1">
+                    <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-gray-200 mb-4">Welcome to VERIFA.AI</h2>
+                    <p className="text-slate-500 dark:text-gray-400 max-w-md mx-auto leading-relaxed">
+                      Enter a prompt below or switch to manual mode to begin evaluating chatbot responses across 7 ethical metrics.
+                    </p>
+                  </div>
+                ) : (
+                  <div id="evaluation-grid-container" className="flex flex-col w-full">
+                    {messages.map((msg, index) => {
+                      if (msg.role === 'assistant' && msg.isEvaluation) {
+                        return (
+                          <div key={msg.id} className="bg-white dark:bg-[#111A28] rounded-xl p-8 border border-slate-200 dark:border-white/5 mb-8 shadow-xl">
+                            <div className="flex justify-between items-start mb-8">
+                              <div>
+                                <h3 className="text-slate-500 dark:text-[#94A3B8] text-sm font-medium mb-2">Assistant</h3>
+                                <p className="text-slate-900 dark:text-[#F1F5F9] text-[13px] leading-relaxed">{msg.text}</p>
+                              </div>
+                              <span className="text-slate-400 dark:text-[#64748B] text-[11px] font-medium mt-1">{msg.time}</span>
+                            </div>
+
+                            <div ref={reportRef} className="bg-slate-50 dark:bg-[#151F2E] border border-slate-200 dark:border-white/5 rounded-xl p-8 shadow-inner">
+                              <div className="flex justify-between items-center mb-8">
+                                <h4 className="text-[12px] font-semibold flex items-center gap-2 text-slate-900 dark:text-[#F1F5F9]">
+                                  <span className="text-lg">📊</span> Evaluation Report <span className={`${riskProfile.color} font-medium ml-2`}>({riskProfile.level})</span>
+                                </h4>
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    onClick={handleExportCSV}
+                                    className="text-[11px] text-blue-500 hover:text-blue-400 border border-blue-500/30 hover:border-blue-500 bg-blue-500/10 px-3 py-1 rounded-md font-bold tracking-wide transition-colors cursor-pointer flex items-center gap-1.5"
+                                  >
+                                    📊 Export CSV
+                                  </button>
+                                  <button
+                                    onClick={exportPDF}
+                                    className="text-[11px] text-[#20B866] hover:text-[#22C55E] border border-[#20B866]/30 hover:border-[#20B866] bg-[#20B866]/10 px-3 py-1 rounded-md font-bold tracking-wide transition-colors cursor-pointer flex items-center gap-1.5"
+                                  >
+                                    📥 Export PDF
+                                  </button>
+                                  <span className="text-[11px] text-slate-500 dark:text-[#94A3B8] border border-slate-200 dark:border-white/5 bg-white dark:bg-[#111A28] px-2.5 py-1 rounded-md font-medium tracking-wide ml-1">
+                                    Gemini Evaluated
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mt-4">
+                                <div className="bg-white dark:bg-[#111A28] border border-slate-200 dark:border-white/5 rounded-lg p-3">
+                                  <div className="text-[11px] text-slate-400 dark:text-[#64748B] mb-1.5 font-medium">Overall Score</div>
+                                  <div className="text-[#20B866] font-bold text-[15px]">{currentEvaluation ? currentEvaluation.score : '-'}/100</div>
+                                </div>
+                                <div className="bg-white dark:bg-[#111A28] border border-slate-200 dark:border-white/5 rounded-lg p-3">
+                                  <div className="text-[11px] text-slate-400 dark:text-[#64748B] mb-1.5 font-medium">Toxicity <span className="text-gray-600 font-normal">(Lower is Better)</span></div>
+                                  <div className="text-slate-900 dark:text-[#F1F5F9] font-bold text-[15px]">{currentEvaluation ? currentEvaluation.toxicity : '-'}/10</div>
+                                </div>
+                                <div className="bg-white dark:bg-[#111A28] border border-slate-200 dark:border-white/5 rounded-lg p-3">
+                                  <div className="text-[11px] text-slate-400 dark:text-[#64748B] mb-1.5 font-medium">Hallucination <span className="text-gray-600 font-normal">(Lower is Better)</span></div>
+                                  <div className="text-slate-900 dark:text-[#F1F5F9] font-bold text-[15px]">{currentEvaluation ? currentEvaluation.hallucination : '-'}/10</div>
+                                </div>
+                                <div className="bg-white dark:bg-[#111A28] border border-slate-200 dark:border-white/5 rounded-lg p-3">
+                                  <div className="text-[11px] text-slate-400 dark:text-[#64748B] mb-1.5 font-medium">Bias <span className="text-gray-600 font-normal">(Lower is Better)</span></div>
+                                  <div className="text-slate-900 dark:text-[#F1F5F9] font-bold text-[15px]">{currentEvaluation ? currentEvaluation.bias : '-'}/10</div>
+                                </div>
+                                <div className="bg-white dark:bg-[#111A28] border border-slate-200 dark:border-white/5 rounded-lg p-3">
+                                  <div className="text-[11px] text-slate-400 dark:text-[#64748B] mb-1.5 font-medium">Privacy <span className="text-gray-600 font-normal">(Lower is Better)</span></div>
+                                  <div className="text-slate-900 dark:text-[#F1F5F9] font-bold text-[15px]">{currentEvaluation ? currentEvaluation.privacy : '-'}/10</div>
+                                </div>
+                                <div className="bg-white dark:bg-[#111A28] border border-slate-200 dark:border-white/5 rounded-lg p-3">
+                                  <div className="text-[11px] text-slate-400 dark:text-[#64748B] mb-1.5 font-medium">Safety Risk <span className="text-gray-600 font-normal">(Lower is Better)</span></div>
+                                  <div className="text-slate-900 dark:text-[#F1F5F9] font-bold text-[15px]">{currentEvaluation ? currentEvaluation.safety : '-'}/10</div>
+                                </div>
+                                <div className="bg-white dark:bg-[#111A28] border border-slate-200 dark:border-white/5 rounded-lg p-3">
+                                  <div className="text-[11px] text-slate-400 dark:text-[#64748B] mb-1.5 font-medium">Transparency <span className="text-gray-600 font-normal">(Higher is Better)</span></div>
+                                  <div className="text-slate-900 dark:text-[#F1F5F9] font-bold text-[15px]">{currentEvaluation ? currentEvaluation.transparency : '-'}/10</div>
+                                </div>
+                                <div className="bg-white dark:bg-[#111A28] border border-slate-200 dark:border-white/5 rounded-lg p-3">
+                                  <div className="text-[11px] text-slate-400 dark:text-[#64748B] mb-1.5 font-medium">Response Quality <span className="text-gray-600 font-normal">(Higher is Better)</span></div>
+                                  <div className="text-slate-900 dark:text-[#F1F5F9] font-bold text-[15px]">{currentEvaluation ? currentEvaluation.quality : '-'}/10</div>
+                                </div>
+                              </div>
+
+                              <div className="mt-8 flex justify-between items-center text-[12px] text-slate-400 dark:text-[#64748B] font-medium pt-6 border-t border-slate-200 dark:border-white/5">
+                                <div>Source / Target: <span className="font-mono text-slate-500 dark:text-[#94A3B8] font-semibold ml-2">http://localhost:11434/v1</span></div>
+                                <div className="text-right">
+                                  <div className="italic text-slate-400 dark:text-[#64748B] mb-0.5">{riskProfile.description}</div>
+                                  <div className="text-[10px] text-slate-500 dark:text-[#94A3B8] font-semibold uppercase tracking-wide">Key Factor: {riskProfile.primaryFactor}</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      if (msg.role === 'user') {
+                        return (
+                          <div key={msg.id} className="mb-8 ml-auto max-w-[75%]">
+                            <div className="flex flex-col items-end">
+                              <span className="text-slate-500 dark:text-[#94A3B8] text-xs font-semibold mb-2 mr-2">You</span>
+                              <div className="bg-[#20B866] rounded-2xl rounded-tr-sm p-4 text-slate-900 dark:text-[#F1F5F9] text-[13px] leading-relaxed shadow-md">
+                                {msg.text}
+                              </div>
+                              <div className="text-[10px] text-slate-400 dark:text-[#64748B] font-medium mt-1 mr-1">
+                                {msg.time}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      return null;
+                    })}
+                  </div>
+                )}
               </div>
-            </div>
-          </>
-        )}
-      </main>
+
+              {/* Input Area */}
+              <div className="mt-auto pt-8 shrink-0 flex flex-col gap-3">
+                {inputMode === 'Manual' && (
+                  <textarea
+                    value={manualBotResponse}
+                    onChange={(e) => setManualBotResponse(e.target.value)}
+                    disabled={isEvaluating}
+                    placeholder="Paste manual bot response to evaluate..."
+                    className="w-full bg-[#0d1117] border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-slate-900 dark:text-[#F1F5F9] placeholder:text-slate-500 text-[14px] focus:outline-none focus:border-[#20B866] transition-colors resize-none h-24 shadow-inner"
+                  />
+                )}
+
+                <div className="bg-white dark:bg-[#121D2C] rounded-full p-2 flex items-center shadow-lg border border-slate-200 dark:border-white/5 focus-within:border-[#20B866] transition-colors">
+                  <input
+                    type="text"
+                    value={promptInput}
+                    onChange={(e) => setPromptInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSend(e)}
+                    disabled={isEvaluating}
+                    placeholder="Ask a question or enter prompt for chatbot evaluation..."
+                    className="flex-1 bg-transparent border-none text-slate-900 dark:text-[#F1F5F9] placeholder:text-slate-400 dark:text-[#64748B] px-4 py-2 focus:outline-none text-[15px]"
+                  />
+
+                  <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 pr-1.5 mt-2 sm:mt-0 w-full sm:w-auto">
+                    <button
+                      onClick={() => setInputMode(inputMode === 'Auto' ? 'Manual' : 'Auto')}
+                      className="bg-slate-100 dark:bg-[#111B2A] border border-slate-300 dark:border-[#2A374A] hover:bg-slate-200 dark:hover:bg-[#1B2636] text-slate-500 dark:text-[#94A3B8] px-3.5 py-1.5 rounded-full text-[12px] font-semibold transition-colors flex items-center gap-1.5"
+                    >
+                      {inputMode}
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </button>
+                    <button onClick={() => setShowRiskDashboard(true)} className="bg-slate-100 dark:bg-[#111B2A] border border-slate-300 dark:border-[#2A374A] hover:bg-slate-200 dark:hover:bg-[#1B2636] text-slate-500 dark:text-[#94A3B8] px-3.5 py-1.5 rounded-full text-[12px] font-semibold transition-colors flex items-center gap-1.5">
+                      <span className="text-indigo-400">⚡</span> Risk
+                    </button>
+                    <button onClick={() => setShowSettingsModal(true)} className="bg-slate-100 dark:bg-[#111B2A] border border-slate-300 dark:border-[#2A374A] hover:bg-slate-200 dark:hover:bg-[#1B2636] text-slate-500 dark:text-[#94A3B8] w-[34px] h-[34px] rounded-full flex items-center justify-center transition-colors">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+                    </button>
+                    <button onClick={handleSend} disabled={isEvaluating} className="bg-[#20B866] hover:bg-[#22C55E] disabled:bg-[#1B2636] disabled:text-slate-400 dark:text-[#64748B] text-[#0B1220] w-[34px] h-[34px] rounded-full flex items-center justify-center transition-colors shadow-sm ml-0.5">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    </button>
+                  </div>
+                </div>
+                <div className="text-center text-[11px] font-medium text-gray-600 mt-3 pb-1">
+                  Chatbot Checker evaluates response accuracy & latency in real-time.
+                </div>
+              </div>
+            </>
+          )}
+        </main>
       </div>
 
       {/* Global Custom Scrollbar Styles for the UI */}
