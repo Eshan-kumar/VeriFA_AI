@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@google/genai": "^2.24.0",
     "@supabase/supabase-js": "^2.116.0",
     "html2pdf.js": "^0.14.0",
     "papaparse": "^5.7.0",
