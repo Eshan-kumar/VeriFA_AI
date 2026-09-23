@@ -7,6 +7,7 @@ import AdminDashboard from './AdminDashboard';
 import SettingsModal from '../features/settings/SettingsModal';
 import RiskDashboardPanel from '../features/evaluation/RiskDashboardPanel';
 import EvaluationReport from '../features/evaluation/EvaluationReport';
+import EvaluationStudio from '../features/evaluation/EvaluationStudio';
 import { API_BASE_URL } from '../shared/services/api';
 
 export default function Dashboard() {
@@ -547,129 +548,8 @@ export default function Dashboard() {
                 activeChatTitle={currentEvaluation?.user_prompt || 'Current Session'}
               />
 
-              {/* Chat/Evaluation Area */}
-              <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar flex flex-col">
-
-                {currentEvaluation?.isGreeting ? (
-                  <div className="flex flex-col items-center justify-center h-full text-center mt-10 md:mt-20 flex-1">
-                    <h2 className="text-3xl md:text-4xl font-black text-neu-text mb-4 uppercase">Welcome to VERIFA.AI</h2>
-                    <p className="text-neu-text/80 max-w-md mx-auto leading-relaxed">
-                      Enter a prompt below or switch to manual mode to begin evaluating chatbot responses across 7 ethical metrics.
-                    </p>
-                  </div>
-                ) : (
-                  <div id="evaluation-grid-container" className="flex flex-col w-full">
-                    {messages.map((msg, index) => {
-                      if (msg.role === 'assistant' && msg.isEvaluation) {
-                        return (
-                          <div key={msg.id} className="bg-neu-surface p-8 border-[3px] border-neu-border mb-8 shadow-neu">
-                            <div className="flex justify-between items-start mb-8">
-                              <div>
-                                <h3 className="text-neu-text/80 text-sm font-medium mb-2">Assistant</h3>
-                                <p className="text-neu-text text-[13px] leading-relaxed">{msg.text}</p>
-                              </div>
-                              <span className="text-neu-text/80 text-[11px] font-medium mt-1">{msg.time}</span>
-                            </div>
-
-                            <div ref={reportRef} className="bg-neu-surface border-[3px] border-neu-border p-8 shadow-neu">
-                              <div className="flex justify-between items-center mb-8">
-                                <h4 className="text-[12px] font-black flex items-center gap-2 text-neu-text uppercase">
-                                  <span className="text-lg">📊</span> Evaluation Report <span className={` ${riskProfile.color} font-medium ml-2`}>({riskProfile.level})</span>
-                                </h4>
-                                <div className="flex items-center gap-2">
-                                  <button
-                                    onClick={handleExportCSV}
-                                    className="text-[11px] text-blue-500 hover:text-blue-400 border-[3px] border-neu-border border-blue-500/30 hover:border-blue-500 bg-blue-500/10 px-3 py-1 font-black tracking-wide transition-colors cursor-pointer flex items-center gap-1.5 uppercase"
-                                  >
-                                    📊 Export CSV
-                                  </button>
-                                  <button
-                                    onClick={exportPDF}
-                                    className="text-[11px] text-neu-secondary hover:text-[#22C55E] border-[3px] border-neu-border border-[#20B866]/30 hover:border-[#20B866] bg-[#20B866]/10 px-3 py-1 font-black tracking-wide transition-colors cursor-pointer flex items-center gap-1.5 uppercase"
-                                  >
-                                    📥 Export PDF
-                                  </button>
-                                  <span className="text-[11px] text-neu-text/80 border-[3px] border-neu-border bg-neu-surface px-2.5 py-1 font-medium tracking-wide ml-1 shadow-neu">
-                                    Gemini Evaluated
-                                  </span>
-                                </div>
-                              </div>
-
-                              <div className="mt-4">
-                                <EvaluationReport evaluationData={currentEvaluation} />
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      }
-
-                      if (msg.role === 'user') {
-                        return (
-                          <div key={msg.id} className="mb-8 ml-auto max-w-[75%]">
-                            <div className="flex flex-col items-end">
-                              <span className="text-neu-text/80 text-xs font-black mb-2 mr-2 uppercase">You</span>
-                              <div className="bg-neu-primary rounded-tr-sm p-4 text-neu-text text-[13px] leading-relaxed border-[3px] border-neu-border shadow-neu hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none">
-                                {msg.text}
-                              </div>
-                              <div className="text-[10px] text-neu-text/80 font-medium mt-1 mr-1">
-                                {msg.time}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      }
-
-                      return null;
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* Input Area */}
-              <div className="mt-auto pt-8 shrink-0 flex flex-col gap-3">
-                {inputMode === 'Manual' && (
-                  <textarea
-                    value={manualBotResponse}
-                    onChange={(e) => setManualBotResponse(e.target.value)}
-                    disabled={isEvaluating}
-                    placeholder="Paste manual bot response to evaluate..."
-                    className="w-full bg-[#0d1117] border-[3px] border-neu-border p-4 text-neu-text placeholder:text-slate-500 text-[14px] focus:outline-none focus:border-[#20B866] transition-colors resize-none h-24"
-                  />
-                )}
-
-                <div className="bg-neu-surface p-2 flex items-center border-[3px] border-neu-border focus-within:border-[#20B866] transition-colors shadow-neu">
-                  <input
-                    type="text"
-                    value={promptInput}
-                    onChange={(e) => setPromptInput(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSend(e)}
-                    disabled={isEvaluating}
-                    placeholder="Ask a question or enter prompt for chatbot evaluation..."
-                    className="flex-1 bg-transparent border-none text-neu-text placeholder:text-slate-400 px-4 py-2 focus:outline-none text-[15px]"
-                  />
-
-                  <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 pr-1.5 mt-2 sm:mt-0 w-full sm:w-auto">
-                    <button
-                      onClick={() => setInputMode(inputMode === 'Auto' ? 'Manual' : 'Auto')}
-                      className="bg-slate-100 border-[3px] border-neu-border text-neu-text/80 px-3.5 py-1.5 text-[12px] font-black transition-colors flex items-center gap-1.5 uppercase"
-                    >
-                      {inputMode}
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </button>
-                    <button onClick={() => setShowRiskDashboard(true)} className="bg-slate-100 border-[3px] border-neu-border text-neu-text/80 px-3.5 py-1.5 text-[12px] font-black transition-colors flex items-center gap-1.5 uppercase">
-                      <span className="text-indigo-400">⚡</span> Risk
-                    </button>
-                    <button onClick={() => setShowSettingsModal(true)} className="bg-slate-100 border-[3px] border-neu-border text-neu-text/80 w-[34px] h-[34px] flex items-center justify-center transition-colors">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
-                    </button>
-                    <button onClick={handleSend} disabled={isEvaluating} className="bg-neu-primary hover:bg-neu-primary/80 disabled:bg-[#1B2636] disabled:text-slate-400 text-[#0B1220] w-[34px] h-[34px] flex items-center justify-center transition-colors ml-0.5 border-[3px] border-neu-border shadow-neu hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                    </button>
-                  </div>
-                </div>
-                <div className="text-center text-[11px] font-medium text-gray-600 mt-3 pb-1">
-                  Chatbot Checker evaluates response accuracy & latency in real-time.
-                </div>
+              <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar flex flex-col pt-4">
+                <EvaluationStudio />
               </div>
             </>
           )}
