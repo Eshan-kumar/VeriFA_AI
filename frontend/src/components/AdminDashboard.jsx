@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import { API_BASE_URL } from '../shared/services/api';
 
 export default function AdminDashboard({ authUser }) {
   const [adminMetrics, setAdminMetrics] = useState({ totalEvals: 0, avgScore: 0, activeUsers: 0, feed: [] });
@@ -14,7 +15,7 @@ export default function AdminDashboard({ authUser }) {
   const fetchAdminMetrics = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:5000/api/admin/metrics');
+      const res = await fetch(`${API_BASE_URL}/admin/metrics`);
       
       if (res.ok) {
         const data = await res.json();

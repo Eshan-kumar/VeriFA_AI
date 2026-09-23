@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Papa from 'papaparse';
 import { supabase } from '../lib/supabaseClient';
+import { API_BASE_URL } from '../shared/services/api';
 
 export default function BatchEvaluator({ authUser }) {
   const [file, setFile] = useState(null);
@@ -49,7 +50,7 @@ export default function BatchEvaluator({ authUser }) {
           const row = rows[i];
           
           try {
-            const res = await fetch('http://localhost:5000/api/evaluate', {
+            const res = await fetch(`${API_BASE_URL}/evaluate`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ prompt: row.prompt, botResponse: row.botResponse || "Simulated response" }),

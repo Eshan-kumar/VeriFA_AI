@@ -3,7 +3,10 @@
  * Connects to Express backend for Passwordless Auth and Model Evaluation
  */
 
-const API_BASE_URL = "http://localhost:5000/api"
+const envBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+// Sanitize trailing slash
+const sanitizedBaseUrl = envBaseUrl.endsWith('/') ? envBaseUrl.slice(0, -1) : envBaseUrl;
+export const API_BASE_URL = `${sanitizedBaseUrl}/api`;
 
 async function request(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`

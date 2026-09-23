@@ -16,8 +16,11 @@ for (const envVar of requiredEnvVars) {
 
 const app = express();
 
-// Phase 7: CORS configuration
-const allowedOrigins = ['http://localhost:5173', 'https://verifa.vercel.app'];
+// Support dynamic frontend URL from environment with local dev fallback
+const allowedOrigins = [
+    process.env.FRONTEND_URL || 'http://localhost:5173', 
+    'https://verifa.vercel.app'
+];
 app.use(cors({
     origin: function(origin, callback) {
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {

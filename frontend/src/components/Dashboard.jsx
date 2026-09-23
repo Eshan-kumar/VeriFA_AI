@@ -6,6 +6,7 @@ import BatchEvaluator from './BatchEvaluator';
 import AdminDashboard from './AdminDashboard';
 import SettingsModal from '../features/settings/SettingsModal';
 import RiskDashboardPanel from '../features/evaluation/RiskDashboardPanel';
+import { API_BASE_URL } from '../shared/services/api';
 
 export default function Dashboard() {
   const [authUser, setAuthUser] = useState(null);
@@ -140,7 +141,7 @@ export default function Dashboard() {
         payload.botResponse = manualBotResponse;
       }
 
-      const res = await fetch('http://localhost:5000/api/evaluate', {
+      const res = await fetch(`${API_BASE_URL}/evaluate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
