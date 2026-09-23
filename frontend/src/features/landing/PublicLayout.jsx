@@ -23,16 +23,16 @@ export default function PublicLayout({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className={`flex flex-col min-h-screen font-sans transition-colors duration-300 ${darkMode ? "dark bg-[#0b0f17] text-white" : "bg-[#f8faf9] text-slate-900"}`}>
+    <div className={`flex flex-col min-h-screen font-sans transition-colors duration-300 bg-neu-bg text-neu-text ${darkMode ? "dark" : ""}`}>
       
       {/* ── TOP NAVBAR ── */}
       <nav className="relative z-20 w-full max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Brand logo wordmark */}
         <Link to="/" className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#2fae63] to-[#1c7c46] flex items-center justify-center text-white font-black text-lg shadow-md shadow-emerald-500/20">
+          <div className="w-9 h-9 bg-neu-primary border-2 border-neu-border flex items-center justify-center text-neu-text font-black text-lg shadow-neu">
             V
           </div>
-          <span className="font-extrabold text-2xl tracking-tight text-slate-900 dark:text-white font-sans drop-shadow-xs">
+          <span className="font-black text-2xl tracking-tight text-neu-text font-sans uppercase">
             {brandName}
           </span>
         </Link>
@@ -43,7 +43,7 @@ export default function PublicLayout({
             <Link
               key={idx}
               to={link.path}
-              className="text-[14px] text-slate-600 dark:text-slate-300 hover:text-[#2fae63] dark:hover:text-emerald-400 font-semibold transition-colors duration-200"
+              className="text-[14px] text-neu-text hover:text-neu-secondary font-black transition-colors duration-200 uppercase"
             >
               {link.name}
             </Link>
@@ -60,7 +60,7 @@ export default function PublicLayout({
                 target="_blank"
                 rel="noreferrer"
                 aria-label={s.name}
-                className="w-8.5 h-8.5 rounded-full border border-slate-300 dark:border-white/20 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-[#2fae63] dark:hover:text-white hover:border-[#2fae63] dark:hover:border-white/60 hover:bg-emerald-50 dark:hover:bg-white/5 transition-all duration-200"
+                className="w-8 h-8 border-2 border-neu-border bg-neu-surface shadow-neu flex items-center justify-center text-neu-text hover:bg-neu-secondary hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all duration-200"
               >
                 {s.icon === "github" && (
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -97,16 +97,16 @@ export default function PublicLayout({
               type="button"
               onClick={onToggleDarkMode}
               className={[
-                "relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none shadow-inner items-center",
-                darkMode ? "bg-[#2fae63]" : "bg-slate-300 dark:bg-slate-700",
+                "relative inline-flex h-8 w-14 shrink-0 cursor-pointer border-2 border-neu-border transition-colors duration-300 ease-in-out shadow-neu hover:shadow-none items-center",
+                darkMode ? "bg-neu-primary" : "bg-neu-secondary",
               ].join(" ")}
               title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
             >
               <span className="sr-only">Toggle theme</span>
               <span
                 className={[
-                  "pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-300 ease-in-out flex items-center justify-center text-[11px]",
-                  darkMode ? "translate-x-6 bg-slate-900 text-amber-300" : "translate-x-0 bg-white text-amber-500",
+                  "pointer-events-none inline-block h-6 w-6 transform border-2 border-neu-border bg-neu-surface transition duration-300 ease-in-out flex items-center justify-center text-[11px]",
+                  darkMode ? "translate-x-6" : "translate-x-0",
                 ].join(" ")}
               >
                 {darkMode ? "🌙" : "☀️"}
@@ -116,7 +116,7 @@ export default function PublicLayout({
 
           <button
             onClick={onLoginClick}
-            className="px-4.5 py-1.5 rounded-full text-[13.5px] font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 transition-all cursor-pointer shadow-md shadow-emerald-500/20"
+            className="px-4.5 py-1.5 text-[13.5px] font-black text-neu-text bg-neu-accent border-2 border-neu-border shadow-neu hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all cursor-pointer uppercase"
           >
             Sign In
           </button>
@@ -127,14 +127,14 @@ export default function PublicLayout({
           {onToggleDarkMode && (
             <button
               onClick={onToggleDarkMode}
-              className="w-9 h-9 rounded-xl bg-slate-200 dark:bg-white/10 flex items-center justify-center text-slate-800 dark:text-white border border-slate-300 dark:border-white/20 text-xs"
+              className="w-9 h-9 bg-neu-surface flex items-center justify-center text-neu-text border-2 border-neu-border shadow-neu text-xs"
             >
               {darkMode ? "🌙" : "☀️"}
             </button>
           )}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="w-10 h-10 rounded-xl bg-slate-200 dark:bg-white/10 flex items-center justify-center text-slate-800 dark:text-white border border-slate-300 dark:border-white/20"
+            className="w-10 h-10 bg-neu-surface flex items-center justify-center text-neu-text border-2 border-neu-border shadow-neu font-black"
           >
             {mobileMenuOpen ? "✕" : "☰"}
           </button>
@@ -143,24 +143,24 @@ export default function PublicLayout({
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden relative z-30 bg-white/95 dark:bg-[#0a0a0d]/95 backdrop-blur-md border-b border-slate-200 dark:border-white/10 px-6 py-4 flex flex-col gap-4 animate-in slide-in-from-top-2">
+        <div className="md:hidden relative z-30 bg-neu-surface border-b-[3px] border-neu-border px-6 py-4 flex flex-col gap-4 animate-in slide-in-from-top-2">
           {navLinks.map((link, idx) => (
             <Link
               key={idx}
               to={link.path}
               onClick={() => setMobileMenuOpen(false)}
-              className="text-base text-slate-800 dark:text-slate-200 hover:text-[#2fae63] py-1 font-semibold"
+              className="text-base text-neu-text hover:text-neu-secondary py-1 font-black uppercase"
             >
               {link.name}
             </Link>
           ))}
-          <div className="flex gap-3 pt-2 border-t border-slate-200 dark:border-white/10">
+          <div className="flex gap-3 pt-2 border-t-[3px] border-neu-border">
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
                 if (onLoginClick) onLoginClick();
               }}
-              className="w-full py-2 rounded-xl text-sm font-semibold text-white bg-[#2fae63]"
+              className="w-full py-2 text-sm font-black text-neu-text bg-neu-accent border-2 border-neu-border shadow-neu hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none uppercase"
             >
               Sign In
             </button>
@@ -172,27 +172,27 @@ export default function PublicLayout({
       <Outlet />
 
       {/* ── FOOTER ── */}
-      <footer className="py-12 px-6 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b0f17] text-xs text-slate-500 dark:text-slate-400 mt-auto">
+      <footer className="py-12 px-6 border-t-[3px] border-neu-border bg-neu-surface text-xs text-neu-text font-bold mt-auto uppercase">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-lg bg-[#2fae63] text-white flex items-center justify-center font-bold text-sm">
+            <div className="w-7 h-7 bg-neu-primary border-2 border-neu-border text-neu-text flex items-center justify-center font-black text-sm shadow-neu">
               V
             </div>
-            <span className="font-extrabold text-sm text-slate-900 dark:text-white tracking-tight">{brandName}</span>
+            <span className="font-black text-sm text-neu-text tracking-tight uppercase">{brandName}</span>
             <span>© {new Date().getFullYear()} All rights reserved.</span>
           </div>
 
           <div className="flex items-center gap-6">
-            <Link to="/ai-benchmarks" className="hover:text-emerald-500 transition-colors">Benchmarks</Link>
-            <Link to="/risk-analytics" className="hover:text-emerald-500 transition-colors">Risk Telemetry</Link>
-            <Link to="/model-safety" className="hover:text-emerald-500 transition-colors">Safety Shield</Link>
-            <Link to="/api-docs" className="hover:text-emerald-500 transition-colors">API Docs</Link>
-            <Link to="/pricing" className="hover:text-emerald-500 transition-colors">Pricing</Link>
+            <Link to="/ai-benchmarks" className="hover:text-neu-secondary transition-colors">Benchmarks</Link>
+            <Link to="/risk-analytics" className="hover:text-neu-secondary transition-colors">Risk Telemetry</Link>
+            <Link to="/model-safety" className="hover:text-neu-secondary transition-colors">Safety Shield</Link>
+            <Link to="/api-docs" className="hover:text-neu-secondary transition-colors">API Docs</Link>
+            <Link to="/pricing" className="hover:text-neu-secondary transition-colors">Pricing</Link>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="font-semibold text-slate-700 dark:text-slate-300">All Security Systems Operational</span>
+            <span className="w-2 h-2 bg-neu-secondary border border-neu-border animate-pulse" />
+            <span className="font-black text-neu-text">All Security Systems Operational</span>
           </div>
         </div>
       </footer>

@@ -53,13 +53,13 @@ export default function AIBenchmarksPage() {
   return (
     <section className="py-16 md:py-24 px-6 max-w-7xl mx-auto flex-grow w-full mt-16">
       <div className="text-center max-w-3xl mx-auto mb-12">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 mb-3">
+        <div className="inline-flex items-center gap-2 px-3 py-1 text-xs font-black bg-emerald-500/10 text-emerald-600 border-[3px] border-neu-border border-emerald-500/20 mb-3 uppercase">
           <span>⚡ Live Telemetry Benchmarks</span>
         </div>
-        <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-neu-text tracking-tight mb-4">
           Multi-Model Performance Matrix
         </h2>
-        <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base">
+        <p className="text-slate-600 text-sm md:text-base">
           Compare latency, accuracy, token throughput, and safety ratings across top AI models in real time.
         </p>
       </div>
@@ -69,50 +69,50 @@ export default function AIBenchmarksPage() {
           <button
             key={filter}
             onClick={() => setActiveBenchmarkMetric(filter)}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold capitalize transition-all cursor-pointer ${
+            className={`px-4 py-2 text-xs font-black capitalize transition-all cursor-pointer uppercase ${
               activeBenchmarkMetric === filter
                 ? "bg-[#2fae63] text-white shadow-md shadow-emerald-500/20"
-                : "bg-white dark:bg-white/5 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10"
-            }`}
+                : "bg-white  text-slate-600  border border-slate-200  hover:bg-slate-100 "
+            } `}
           >
             {filter === "all" ? "All Metrics" : `${filter} Focus`}
           </button>
         ))}
       </div>
 
-      <div className="bg-white dark:bg-[#111827] rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
+      <div className="bg-neu-surface rounded-3xl border-[3px] border-neu-border overflow-hidden shadow-neu">
         {/* Mobile Card Grid View (< md) */}
         <div className="grid grid-cols-1 gap-3.5 p-4 md:hidden">
           {BENCHMARK_DATA.map((row, idx) => (
-            <div key={idx} className="bg-slate-50/80 dark:bg-slate-800/40 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-2.5">
+            <div key={idx} className="bg-slate-50/80 p-4 border-[3px] border-neu-border border-slate-200/80 space-y-2.5">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 font-bold text-sm text-slate-900 dark:text-white">
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#2fae63]" />
+                <div className="flex items-center gap-2 font-black text-sm text-neu-text uppercase">
+                  <div className="w-2.5 h-2.5 bg-[#2fae63]" />
                   {row.model}
                 </div>
-                <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${row.badgeColor}`}>
+                <span className={`px-2.5 py-0.5 text-[11px] font-black border-[3px] border-neu-border uppercase ${row.badgeColor} `}>
                   {row.status}
                 </span>
               </div>
-              <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                Provider: <span className="text-slate-700 dark:text-slate-200">{row.provider}</span>
+              <div className="text-xs text-neu-text/80 font-medium">
+                Provider: <span className="text-slate-700">{row.provider}</span>
               </div>
               <div className="grid grid-cols-2 gap-2 pt-1 text-xs font-mono">
-                <div className="bg-white dark:bg-[#111827] p-2 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
-                  <div className="text-[10px] text-slate-400 font-sans">Avg Latency</div>
-                  <div className="font-semibold text-emerald-600 dark:text-emerald-400">{row.latency}</div>
+                <div className="bg-neu-surface p-2 border-[3px] border-neu-border border-slate-200/60 shadow-neu">
+                  <div className="text-[10px] text-neu-text/80 font-sans">Avg Latency</div>
+                  <div className="font-black text-emerald-600 uppercase">{row.latency}</div>
                 </div>
-                <div className="bg-white dark:bg-[#111827] p-2 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
-                  <div className="text-[10px] text-slate-400 font-sans">Accuracy</div>
-                  <div className="font-semibold text-slate-900 dark:text-white">{row.accuracy}</div>
+                <div className="bg-neu-surface p-2 border-[3px] border-neu-border border-slate-200/60 shadow-neu">
+                  <div className="text-[10px] text-neu-text/80 font-sans">Accuracy</div>
+                  <div className="font-black text-neu-text uppercase">{row.accuracy}</div>
                 </div>
-                <div className="bg-white dark:bg-[#111827] p-2 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
-                  <div className="text-[10px] text-slate-400 font-sans">Safety Score</div>
-                  <div className="font-semibold text-teal-600 dark:text-teal-400">{row.safetyScore}</div>
+                <div className="bg-neu-surface p-2 border-[3px] border-neu-border border-slate-200/60 shadow-neu">
+                  <div className="text-[10px] text-neu-text/80 font-sans">Safety Score</div>
+                  <div className="font-black text-teal-600 uppercase">{row.safetyScore}</div>
                 </div>
-                <div className="bg-white dark:bg-[#111827] p-2 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
-                  <div className="text-[10px] text-slate-400 font-sans">TTFT</div>
-                  <div className="font-semibold text-slate-500">{row.ttft}</div>
+                <div className="bg-neu-surface p-2 border-[3px] border-neu-border border-slate-200/60 shadow-neu">
+                  <div className="text-[10px] text-neu-text/80 font-sans">TTFT</div>
+                  <div className="font-black text-neu-text/80 uppercase">{row.ttft}</div>
                 </div>
               </div>
             </div>
@@ -121,32 +121,32 @@ export default function AIBenchmarksPage() {
 
         {/* Desktop Table View (>= md) */}
         <div className="hidden md:block overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-700 dark:text-slate-300">
-            <thead className="bg-slate-50 dark:bg-[#1f2937] text-slate-900 dark:text-slate-200 uppercase text-[11px] tracking-wider border-b border-slate-200 dark:border-slate-800">
+          <table className="w-full text-left text-sm text-slate-700">
+            <thead className="bg-neu-surface text-neu-text uppercase text-[11px] tracking-wider border-b-[3px] border-neu-border border-[3px] shadow-neu">
               <tr>
-                <th className="px-6 py-4 font-bold">Model Engine</th>
-                <th className="px-6 py-4 font-bold">Provider</th>
-                <th className="px-6 py-4 font-bold">Avg Latency</th>
-                <th className="px-6 py-4 font-bold">Accuracy</th>
-                <th className="px-6 py-4 font-bold">Safety Score</th>
-                <th className="px-6 py-4 font-bold">TTFT</th>
-                <th className="px-6 py-4 font-bold">Status</th>
+                <th className="px-6 py-4 font-black uppercase">Model Engine</th>
+                <th className="px-6 py-4 font-black uppercase">Provider</th>
+                <th className="px-6 py-4 font-black uppercase">Avg Latency</th>
+                <th className="px-6 py-4 font-black uppercase">Accuracy</th>
+                <th className="px-6 py-4 font-black uppercase">Safety Score</th>
+                <th className="px-6 py-4 font-black uppercase">TTFT</th>
+                <th className="px-6 py-4 font-black uppercase">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody className="divide-y divide-slate-100">
               {BENCHMARK_DATA.map((row, idx) => (
-                <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
-                  <td className="px-6 py-4 font-bold text-slate-900 dark:text-white flex items-center gap-3">
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#2fae63]" />
+                <tr key={idx} className="transition-colors">
+                  <td className="px-6 py-4 font-black text-neu-text flex items-center gap-3 uppercase">
+                    <div className="w-2.5 h-2.5 bg-[#2fae63]" />
                     {row.model}
                   </td>
-                  <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400 font-medium">{row.provider}</td>
-                  <td className="px-6 py-4 font-mono text-emerald-600 dark:text-emerald-400 font-semibold">{row.latency}</td>
-                  <td className="px-6 py-4 font-mono font-semibold">{row.accuracy}</td>
-                  <td className="px-6 py-4 font-mono text-teal-600 dark:text-teal-400 font-semibold">{row.safetyScore}</td>
-                  <td className="px-6 py-4 font-mono text-slate-500">{row.ttft}</td>
+                  <td className="px-6 py-4 text-xs text-neu-text/80 font-medium">{row.provider}</td>
+                  <td className="px-6 py-4 font-mono text-emerald-600 font-black uppercase">{row.latency}</td>
+                  <td className="px-6 py-4 font-mono font-black uppercase">{row.accuracy}</td>
+                  <td className="px-6 py-4 font-mono text-teal-600 font-black uppercase">{row.safetyScore}</td>
+                  <td className="px-6 py-4 font-mono text-neu-text/80">{row.ttft}</td>
                   <td className="px-6 py-4">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${row.badgeColor}`}>
+                    <span className={`px-2.5 py-1 text-xs font-black border-[3px] border-neu-border uppercase ${row.badgeColor} `}>
                       {row.status}
                     </span>
                   </td>

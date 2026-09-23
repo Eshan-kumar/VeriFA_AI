@@ -36,8 +36,8 @@ export default function App() {
 
   if (isAuthLoading) {
     return (
-      <div className="min-h-screen bg-[#0a0d14] flex items-center justify-center">
-        <div className="animate-pulse text-green-500 font-semibold">Loading VERIFA.AI...</div>
+      <div className="min-h-screen bg-neu-bg flex items-center justify-center">
+        <div className="animate-pulse text-neu-primary font-black uppercase">Loading VERIFA.AI...</div>
       </div>
     );
   }

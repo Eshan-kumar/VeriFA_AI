@@ -10,9 +10,9 @@ export default function EvaluationConfigCard({
   notify,
 }) {
   return (
-    <div className="w-full bg-white/90 dark:bg-[#1f2937]/90 backdrop-blur-md border border-[#e2e2df] dark:border-[#374151] rounded-2xl sm:rounded-3xl p-3 sm:p-4 shadow-sm mb-4 transition-colors">
+    <div className="w-full bg-white/90 backdrop-blur-md border-[3px] border-neu-border border-[#e2e2df] sm:rounded-3xl p-3 sm:p-4 mb-4 transition-colors">
       {/* Mode selection tabs */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 mb-3 border-b border-[#ececec] dark:border-[#374151] pb-3 sm:pb-2">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 mb-3 border-b-[3px] border-neu-border border-[#ececec] pb-3 sm:pb-2">
         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap sm:flex-nowrap">
           <button
             type="button"
@@ -40,8 +40,8 @@ export default function EvaluationConfigCard({
           </button>
         </div>
 
-        <span className="self-start sm:self-auto flex items-center gap-1.5 text-[11px] sm:text-[11.5px] font-medium px-2.5 py-0.5 rounded-full bg-[#edf7f1] dark:bg-emerald-950/80 text-[#1c7c46] dark:text-emerald-400">
-          <span className="w-2 h-2 rounded-full bg-[#2fae63] animate-pulse" />
+        <span className="self-start sm:self-auto flex items-center gap-1.5 text-[11px] sm:text-[11.5px] font-medium px-2.5 py-0.5 bg-[#edf7f1] text-[#1c7c46]">
+          <span className="w-2 h-2 bg-[#2fae63] animate-pulse" />
           {evalMode === "apiKey"
             ? (apiKey.trim() ? "Key Connected" : "No Key Set")
             : (targetUrl.trim() ? "Endpoint Set" : "No Endpoint")}
@@ -51,8 +51,8 @@ export default function EvaluationConfigCard({
       {/* Input field based on mode */}
       {evalMode === "apiKey" ? (
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-          <div className="flex-1 flex items-center bg-[#f7f7f5] dark:bg-[#111827] border border-[#e6e6e2] dark:border-[#374151] rounded-xl px-3 py-2 focus-within:border-[#2fae63] transition-colors">
-            <svg className="text-[#8e8e93] dark:text-gray-400 mr-2 flex-shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <div className="flex-1 flex items-center bg-[#f7f7f5] border-[3px] border-neu-border border-[#e6e6e2] px-3 py-2 focus-within:border-[#2fae63] transition-colors">
+            <svg className="text-[#8e8e93] mr-2 flex-shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
               <path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
@@ -62,13 +62,13 @@ export default function EvaluationConfigCard({
               placeholder="Enter your OpenAI, Anthropic, or Custom API key..."
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              className="flex-1 min-w-0 bg-transparent border-none outline-none text-[12.5px] sm:text-[13.5px] text-[#1c1c1e] dark:text-gray-100 placeholder-[#9a9a96] dark:placeholder-gray-500 font-mono"
+              className="flex-1 min-w-0 bg-transparent border-none outline-none text-[12.5px] sm:text-[13.5px] text-[#1c1c1e] placeholder-[#9a9a96] font-mono"
             />
 
             <button
               type="button"
               onClick={() => setShowApiKey(!showApiKey)}
-              className="text-[#8e8e93] hover:text-[#1c1c1e] dark:text-gray-400 dark:hover:text-white bg-transparent border-none cursor-pointer px-1 transition-colors flex-shrink-0"
+              className="text-[#8e8e93] hover:text-[#1c1c1e] bg-transparent border-none cursor-pointer px-1 transition-colors flex-shrink-0"
               title={showApiKey ? "Hide Key" : "Show Key"}
             >
               {showApiKey ? (
@@ -91,7 +91,7 @@ export default function EvaluationConfigCard({
                 setApiKey("")
                 notify("API key cleared")
               }}
-              className="bg-[#f0f0ef] dark:bg-[#374151] hover:bg-[#e4e4e0] dark:hover:bg-gray-600 text-[#6b6f76] dark:text-gray-200 text-[12px] font-medium px-3 py-2 rounded-lg border-none cursor-pointer transition-colors flex-shrink-0"
+              className="bg-[#f0f0ef] hover:bg-[#e4e4e0] text-[#6b6f76] text-[12px] font-medium px-3 py-2 border-none cursor-pointer transition-colors flex-shrink-0"
             >
               Clear Key
             </button>
@@ -99,8 +99,8 @@ export default function EvaluationConfigCard({
         </div>
       ) : (
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-          <div className="flex-1 flex items-center bg-[#f7f7f5] dark:bg-[#111827] border border-[#e6e6e2] dark:border-[#374151] rounded-xl px-3 py-2 focus-within:border-[#2fae63] transition-colors">
-            <svg className="text-[#8e8e93] dark:text-gray-400 mr-2 flex-shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <div className="flex-1 flex items-center bg-[#f7f7f5] border-[3px] border-neu-border border-[#e6e6e2] px-3 py-2 focus-within:border-[#2fae63] transition-colors">
+            <svg className="text-[#8e8e93] mr-2 flex-shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
               <circle cx="12" cy="12" r="10" />
               <line x1="2" y1="12" x2="22" y2="12" />
               <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
@@ -111,7 +111,7 @@ export default function EvaluationConfigCard({
               placeholder="Enter Chatbot API Endpoint or Web URL (e.g. https://mychatbot.com/api)..."
               value={targetUrl}
               onChange={(e) => setTargetUrl(e.target.value)}
-              className="flex-1 min-w-0 bg-transparent border-none outline-none text-[12.5px] sm:text-[13.5px] text-[#1c1c1e] dark:text-gray-100 placeholder-[#9a9a96] dark:placeholder-gray-500 font-mono"
+              className="flex-1 min-w-0 bg-transparent border-none outline-none text-[12.5px] sm:text-[13.5px] text-[#1c1c1e] placeholder-[#9a9a96] font-mono"
             />
           </div>
 
@@ -121,7 +121,7 @@ export default function EvaluationConfigCard({
                 setTargetUrl("")
                 notify("Endpoint URL cleared")
               }}
-              className="bg-[#f0f0ef] dark:bg-[#374151] hover:bg-[#e4e4e0] dark:hover:bg-gray-600 text-[#6b6f76] dark:text-gray-200 text-[12px] font-medium px-3 py-2 rounded-lg border-none cursor-pointer transition-colors flex-shrink-0"
+              className="bg-[#f0f0ef] hover:bg-[#e4e4e0] text-[#6b6f76] text-[12px] font-medium px-3 py-2 border-none cursor-pointer transition-colors flex-shrink-0"
             >
               Clear Endpoint
             </button>

@@ -2,10 +2,45 @@
 @import "tailwindcss";
 @variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --color-neu-primary: var(--neu-primary);
+  --color-neu-secondary: var(--neu-secondary);
+  --color-neu-accent: var(--neu-accent);
+  --color-neu-bg: var(--neu-bg);
+  --color-neu-surface: var(--neu-surface);
+  --color-neu-border: var(--neu-border);
+  --color-neu-text: var(--neu-text);
+  --shadow-neu: 4px 4px 0px var(--neu-shadow);
+  --shadow-neu-hover: 2px 2px 0px var(--neu-shadow);
+}
+
 @layer base {
+  :root {
+    --neu-primary: #FFD500;
+    --neu-secondary: #00E5FF;
+    --neu-accent: #FF00E5;
+    --neu-bg: #FDF9F1; /* Light cream */
+    --neu-surface: #FFFFFF;
+    --neu-border: #111111;
+    --neu-text: #111111;
+    --neu-shadow: #111111;
+  }
+
+  .dark {
+    --neu-primary: #FFB300;
+    --neu-secondary: #00B8D4;
+    --neu-accent: #D500F9;
+    --neu-bg: #1A1C23; /* Dark background */
+    --neu-surface: #222530; /* Slightly lighter dark surface */
+    --neu-border: #E5E7EB; /* Light border in dark mode */
+    --neu-text: #F3F4F6;
+    --neu-shadow: #E5E7EB;
+  }
+  
   body {
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    @apply bg-neu-bg text-neu-text;
   }
 }

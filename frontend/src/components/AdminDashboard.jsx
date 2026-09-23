@@ -46,45 +46,45 @@ export default function AdminDashboard({ authUser }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full text-indigo-400">
-        <span className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></span>
+        <span className="w-8 h-8 border-4 border-indigo-500 border-t-transparent animate-spin"></span>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full bg-gray-950 text-white overflow-y-auto p-6">
+    <div className="flex flex-col h-full bg-gray-950 text-neu-text overflow-y-auto p-6">
       <div className="max-w-7xl mx-auto w-full space-y-8">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+          <h2 className="text-2xl font-black tracking-tight flex items-center gap-2 uppercase">
             <span className="text-emerald-500">🛡️</span> Security Admin Dashboard
           </h2>
           <button 
             onClick={fetchAdminMetrics}
-            className="px-4 py-2 bg-gray-900 border border-gray-800 rounded-lg text-sm hover:bg-gray-800 transition-colors"
+            className="px-4 py-2 bg-gray-900 border-[3px] border-neu-border border-gray-800 text-sm hover:bg-gray-800 transition-colors"
           >
             Refresh Data
           </button>
         </div>
 
         {error && (
-          <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+          <div className="p-4 bg-red-500/10 border-[3px] border-neu-border border-red-500/20 text-red-400 text-sm">
             Admin Access Error: {error}
           </div>
         )}
 
         {/* Top Metric Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-gray-900 border border-gray-800 rounded-3xl p-6 shadow-xl relative overflow-hidden">
+          <div className="bg-gray-900 border-[3px] border-neu-border border-gray-800 rounded-3xl p-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-10 text-4xl">📊</div>
             <h3 className="text-gray-400 text-sm font-medium mb-1">Total Evaluations</h3>
-            <p className="text-4xl font-black text-white">{adminMetrics.totalEvals}</p>
+            <p className="text-4xl font-black text-neu-text">{adminMetrics.totalEvals}</p>
           </div>
-          <div className="bg-gray-900 border border-gray-800 rounded-3xl p-6 shadow-xl relative overflow-hidden">
+          <div className="bg-gray-900 border-[3px] border-neu-border border-gray-800 rounded-3xl p-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-10 text-4xl">⭐</div>
             <h3 className="text-gray-400 text-sm font-medium mb-1">System Avg Score</h3>
             <p className="text-4xl font-black text-emerald-400">{adminMetrics.avgScore}/100</p>
           </div>
-          <div className="bg-gray-900 border border-gray-800 rounded-3xl p-6 shadow-xl relative overflow-hidden">
+          <div className="bg-gray-900 border-[3px] border-neu-border border-gray-800 rounded-3xl p-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-10 text-4xl">👥</div>
             <h3 className="text-gray-400 text-sm font-medium mb-1">Unique Users Monitored</h3>
             <p className="text-4xl font-black text-indigo-400">{adminMetrics.activeUsers}</p>
@@ -92,26 +92,26 @@ export default function AdminDashboard({ authUser }) {
         </div>
 
         {/* Global Activity Feed */}
-        <div className="bg-gray-900 border border-gray-800 rounded-3xl shadow-xl overflow-hidden">
-          <div className="px-6 py-5 border-b border-gray-800">
-            <h3 className="font-bold text-lg">Global Evaluation Feed</h3>
+        <div className="bg-gray-900 border-[3px] border-neu-border border-gray-800 rounded-3xl overflow-hidden">
+          <div className="px-6 py-5 border-b-[3px] border-neu-border border-gray-800">
+            <h3 className="font-black text-lg uppercase">Global Evaluation Feed</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-950/50 text-xs uppercase tracking-wider text-gray-500">
-                  <th className="px-6 py-4 font-semibold">Timestamp</th>
-                  <th className="px-6 py-4 font-semibold">User ID</th>
-                  <th className="px-6 py-4 font-semibold">Prompt Snippet</th>
-                  <th className="px-6 py-4 font-semibold">Score</th>
-                  <th className="px-6 py-4 font-semibold text-right">Action</th>
+                  <th className="px-6 py-4 font-black uppercase">Timestamp</th>
+                  <th className="px-6 py-4 font-black uppercase">User ID</th>
+                  <th className="px-6 py-4 font-black uppercase">Prompt Snippet</th>
+                  <th className="px-6 py-4 font-black uppercase">Score</th>
+                  <th className="px-6 py-4 font-black text-right uppercase">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-800">
                 {adminMetrics.feed.map((ev) => (
                   <React.Fragment key={ev.id}>
                     <tr 
-                      className={`hover:bg-gray-800/50 transition-colors cursor-pointer ${expandedRow === ev.id ? 'bg-gray-800/50' : ''}`}
+                      className={`hover:bg-gray-800/50 transition-colors cursor-pointer ${expandedRow === ev.id ? 'bg-gray-800/50' : ''} `}
                       onClick={() => setExpandedRow(expandedRow === ev.id ? null : ev.id)}
                     >
                       <td className="px-6 py-4 text-sm text-gray-400">
@@ -124,11 +124,11 @@ export default function AdminDashboard({ authUser }) {
                         [Prompt Redacted]
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
+                        <span className={`px-3 py-1 text-xs font-black border-[3px] border-neu-border uppercase ${
                           ev.overall_score >= 80 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 
                           ev.overall_score >= 60 ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : 
                           'bg-red-500/10 text-red-400 border-red-500/20'
-                        }`}>
+                        } `}>
                           {ev.overall_score}/100
                         </span>
                       </td>
@@ -137,20 +137,20 @@ export default function AdminDashboard({ authUser }) {
                       </td>
                     </tr>
                     {expandedRow === ev.id && (
-                      <tr className="bg-gray-950/50 border-b border-gray-800">
+                      <tr className="bg-gray-950/50 border-b-[3px] border-neu-border border-gray-800">
                         <td colSpan="5" className="px-6 py-6">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                              <h4 className="text-xs text-gray-500 uppercase font-bold mb-2">Security Metadata</h4>
-                              <div className="p-3 bg-gray-900 border border-gray-800 rounded-lg text-sm text-gray-300">
+                              <h4 className="text-xs text-gray-500 uppercase font-black mb-2">Security Metadata</h4>
+                              <div className="p-3 bg-gray-900 border-[3px] border-neu-border border-gray-800 text-sm text-gray-300">
                                 <div>Toxicity Metric: {ev.toxicity_score || 'N/A'}</div>
                                 <div>Overall Score: {ev.overall_score || 'N/A'}</div>
                                 <div className="text-gray-500 italic mt-4 text-xs">* Raw prompt and response are permanently inaccessible via Admin Dashboard per strict Privacy Policy.</div>
                               </div>
                             </div>
                             <div>
-                              <h4 className="text-xs text-gray-500 uppercase font-bold mb-2">Ethical Breakdown (JSON)</h4>
-                              <pre className="p-4 bg-black border border-gray-800 rounded-lg text-xs font-mono text-indigo-300 overflow-x-auto">
+                              <h4 className="text-xs text-gray-500 uppercase font-black mb-2">Ethical Breakdown (JSON)</h4>
+                              <pre className="p-4 bg-black border-[3px] border-neu-border border-gray-800 text-xs font-mono text-indigo-300 overflow-x-auto">
                                 {JSON.stringify({ toxicity: ev.toxicity_score || 1, overall: ev.overall_score }, null, 2)}
                               </pre>
                             </div>

@@ -111,30 +111,30 @@ export default function BatchEvaluator({ authUser }) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-transparent text-slate-900 dark:text-[#F1F5F9] overflow-y-auto p-6">
+    <div className="flex flex-col h-full bg-transparent text-neu-text overflow-y-auto p-6">
       <div className="max-w-4xl mx-auto w-full space-y-8">
-        <div className="bg-white dark:bg-[#111A28] border border-slate-200 dark:border-white/5 rounded-3xl p-8 shadow-xl">
+        <div className="bg-neu-surface border-[3px] border-neu-border rounded-3xl p-8 shadow-neu">
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold tracking-tight mb-2 flex items-center justify-center gap-2">
-              <span className="text-[#20B866]">📑</span> Batch Evaluation Module
+            <h2 className="text-2xl font-black tracking-tight mb-2 flex items-center justify-center gap-2 uppercase">
+              <span className="text-neu-secondary">📑</span> Batch Evaluation Module
             </h2>
-            <p className="text-slate-500 dark:text-[#94A3B8] text-sm">
-              Upload a CSV with <code className="bg-slate-50 dark:bg-[#151F2E] border border-slate-200 dark:border-white/5 px-1.5 py-0.5 rounded text-[#20B866]">prompt</code> and <code className="bg-slate-50 dark:bg-[#151F2E] border border-slate-200 dark:border-white/5 px-1.5 py-0.5 rounded text-[#20B866]">botResponse</code> headers.
+            <p className="text-neu-text/80 text-sm">
+              Upload a CSV with <code className="bg-neu-surface border-[3px] border-neu-border px-1.5 py-0.5 rounded text-neu-secondary shadow-neu">prompt</code> and <code className="bg-neu-surface border-[3px] border-neu-border px-1.5 py-0.5 rounded text-neu-secondary shadow-neu">botResponse</code> headers.
             </p>
           </div>
 
-          <div className="border-2 border-dashed border-white/10 rounded-2xl p-10 flex flex-col items-center justify-center bg-slate-50 dark:bg-[#151F2E] hover:border-[#20B866] transition-colors group">
+          <div className="border-2 border-dashed border-white/10 p-10 flex flex-col items-center justify-center bg-neu-surface hover:border-[#20B866] transition-colors group border-[3px] border-neu-border shadow-neu">
             <input 
               type="file" 
               accept=".csv" 
               onChange={handleFileUpload}
               disabled={processing}
-              className="block w-full text-sm text-slate-500 dark:text-[#94A3B8] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#20B866]/10 file:text-[#20B866] hover:file:bg-[#20B866]/20 cursor-pointer"
+              className="block w-full text-sm text-neu-text/80 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#20B866]/10 file:text-[#20B866] hover:file:bg-[#20B866]/20 cursor-pointer"
             />
           </div>
 
           {error && (
-            <div className="mt-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2">
+            <div className="mt-4 p-4 bg-red-500/10 border-[3px] border-neu-border border-red-500/20 text-red-400 text-sm flex items-center gap-2">
               <span>⚠️</span>
               <span>{error}</span>
             </div>
@@ -143,20 +143,20 @@ export default function BatchEvaluator({ authUser }) {
           <button
             onClick={handleBatchUpload}
             disabled={!file || processing}
-            className="w-full mt-6 bg-[#20B866] hover:bg-[#22C55E] text-[#0B1220] py-3 rounded-xl font-bold transition-all shadow-lg shadow-[#20B866]/20 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full mt-6 bg-neu-primary hover:bg-neu-primary/80 text-[#0B1220] py-3 font-black transition-all shadow-[#20B866]/20 disabled:opacity-50 disabled:cursor-not-allowed border-[3px] border-neu-border shadow-neu hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none uppercase"
           >
             {processing ? `Processing... ${progress}%` : 'Start Batch Process'}
           </button>
 
           {processing && (
             <div className="mt-6">
-              <div className="flex justify-between text-xs text-slate-500 dark:text-[#94A3B8] mb-2 font-medium">
+              <div className="flex justify-between text-xs text-neu-text/80 mb-2 font-medium">
                 <span>Overall Progress</span>
                 <span>{progress}%</span>
               </div>
-              <div className="w-full bg-slate-50 dark:bg-[#151F2E] rounded-full h-2 border border-slate-200 dark:border-white/5">
+              <div className="w-full bg-neu-surface h-2 border-[3px] border-neu-border shadow-neu">
                 <div 
-                  className="bg-[#20B866] h-2 rounded-full transition-all duration-300 shadow-[0_0_8px_rgba(32,184,102,0.6)]" 
+                  className="bg-neu-primary h-2 transition-all duration-300 shadow-[0_0_8px_rgba(32,184,102,0.6)] border-[3px] border-neu-border shadow-neu hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none" 
                   style={{ width: `${progress}%` }}
                 ></div>
               </div>
@@ -165,21 +165,21 @@ export default function BatchEvaluator({ authUser }) {
         </div>
 
         {results.length > 0 && (
-          <div className="bg-white dark:bg-[#111A28] border border-slate-200 dark:border-white/5 rounded-3xl p-6 shadow-xl">
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-900 dark:text-[#F1F5F9]">
-              <span className="text-[#20B866]">📊</span> Batch Results
+          <div className="bg-neu-surface border-[3px] border-neu-border rounded-3xl p-6 shadow-neu">
+            <h3 className="text-lg font-black mb-4 flex items-center gap-2 text-neu-text uppercase">
+              <span className="text-neu-secondary">📊</span> Batch Results
             </h3>
             <div className="space-y-3 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
               {results.map((r, i) => (
-                <div key={i} className="bg-slate-50 dark:bg-[#151F2E] p-4 rounded-xl border border-slate-200 dark:border-white/5 flex justify-between items-center shadow-inner">
-                  <div className="truncate pr-4 text-sm text-slate-900 dark:text-[#F1F5F9] font-medium">{r.prompt}</div>
+                <div key={i} className="bg-neu-surface p-4 border-[3px] border-neu-border flex justify-between items-center shadow-neu">
+                  <div className="truncate pr-4 text-sm text-neu-text font-medium">{r.prompt}</div>
                   <div className="flex items-center gap-3 shrink-0">
                     {r.status === 'Success' ? (
-                      <span className="px-3 py-1 rounded-full bg-[#20B866]/10 text-[#20B866] text-xs font-bold border border-[#20B866]/20">
+                      <span className="px-3 py-1 bg-[#20B866]/10 text-neu-secondary text-xs font-black border-[3px] border-neu-border border-[#20B866]/20 uppercase">
                         {r.score}/100
                       </span>
                     ) : (
-                      <span className="px-3 py-1 rounded-full bg-red-500/10 text-red-400 text-xs font-bold border border-red-500/20">
+                      <span className="px-3 py-1 bg-red-500/10 text-red-400 text-xs font-black border-[3px] border-neu-border border-red-500/20 uppercase">
                         Failed
                       </span>
                     )}

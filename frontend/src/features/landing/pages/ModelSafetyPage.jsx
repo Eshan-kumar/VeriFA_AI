@@ -33,13 +33,13 @@ export default function ModelSafetyPage() {
   return (
     <section className="py-16 md:py-24 px-6 max-w-7xl mx-auto flex-grow w-full mt-16">
       <div className="text-center max-w-3xl mx-auto mb-12">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 mb-3">
+        <div className="inline-flex items-center gap-2 px-3 py-1 text-xs font-black bg-emerald-500/10 text-emerald-600 border-[3px] border-neu-border border-emerald-500/20 mb-3 uppercase">
           <span>🛡️ Enterprise Defense Guard</span>
         </div>
-        <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-neu-text tracking-tight mb-4">
           Automated Model Safety & Guardrails
         </h2>
-        <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base">
+        <p className="text-slate-600 text-sm md:text-base">
           Protect your production AI against prompt injection, data extraction, and hallucination exploits.
         </p>
       </div>
@@ -52,58 +52,58 @@ export default function ModelSafetyPage() {
             <div
               key={idx}
               onClick={() => setSelectedSafetyCase(idx)}
-              className={`p-5 rounded-2xl border cursor-pointer transition-all ${
+              className={`p-5 border-[3px] border-neu-border cursor-pointer transition-all ${
                 selectedSafetyCase === idx
-                  ? "bg-white dark:bg-[#111827] border-[#2fae63] shadow-lg shadow-emerald-500/10"
-                  : "bg-white/60 dark:bg-white/5 border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20"
-              }`}
+                  ? "bg-white  border-[#2fae63] shadow-lg shadow-emerald-500/10"
+                  : "bg-white/60  border-slate-200  hover:border-slate-300 "
+              } `}
             >
               <div className="flex justify-between items-center mb-2">
-                <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{item.category}</span>
-                <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-[#2fae63]">
+                <span className="text-xs font-black text-emerald-600 uppercase">{item.category}</span>
+                <span className="text-xs font-mono font-black px-2 py-0.5 bg-emerald-500/10 text-[#2fae63] uppercase">
                   {item.status}
                 </span>
               </div>
-              <div className="text-sm font-semibold text-slate-900 dark:text-white line-clamp-1">{item.input}</div>
+              <div className="text-sm font-black text-neu-text line-clamp-1 uppercase">{item.input}</div>
             </div>
           ))}
         </div>
 
         {/* Detailed breakdown card */}
-        <div className="lg:col-span-7 bg-white dark:bg-[#111827] rounded-3xl p-6 md:p-8 border border-slate-200 dark:border-slate-800 shadow-xl flex flex-col justify-between">
+        <div className="lg:col-span-7 bg-neu-surface rounded-3xl p-6 md:p-8 border-[3px] border-neu-border flex flex-col justify-between shadow-neu">
           <div>
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-6">
+            <div className="flex items-center justify-between pb-4 border-b-[3px] border-neu-border border-slate-100 mb-6">
               <div>
-                <span className="text-xs text-slate-400 uppercase font-bold tracking-wider">Active Guardrail Test</span>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-1">
+                <span className="text-xs text-neu-text/80 uppercase font-black tracking-wider">Active Guardrail Test</span>
+                <h3 className="text-xl font-black text-neu-text mt-1 uppercase">
                   {SAFETY_TEST_CASES[selectedSafetyCase].category} Shield
                 </h3>
               </div>
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-[#2fae63] border border-emerald-500/20">
+              <span className="px-3 py-1 text-xs font-black bg-emerald-500/10 text-[#2fae63] border-[3px] border-neu-border border-emerald-500/20 uppercase">
                 Protection Score: {SAFETY_TEST_CASES[selectedSafetyCase].score}
               </span>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-semibold text-slate-500 uppercase">Input Payload</label>
-                <div className="mt-1.5 p-3.5 rounded-xl bg-slate-50 dark:bg-[#1f2937] font-mono text-xs text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
+                <label className="text-xs font-black text-neu-text/80 uppercase">Input Payload</label>
+                <div className="mt-1.5 p-3.5 bg-neu-surface font-mono text-xs text-neu-text border-[3px] border-neu-border shadow-neu">
                   "{SAFETY_TEST_CASES[selectedSafetyCase].input}"
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-500 uppercase">Guardrail Outcome & Rationale</label>
-                <p className="mt-1 text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+                <label className="text-xs font-black text-neu-text/80 uppercase">Guardrail Outcome & Rationale</label>
+                <p className="mt-1 text-sm text-slate-700 leading-relaxed font-medium">
                   {SAFETY_TEST_CASES[selectedSafetyCase].details}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
-            <span>Risk Severity: <strong className="text-emerald-600 dark:text-emerald-400">{SAFETY_TEST_CASES[selectedSafetyCase].riskLevel}</strong></span>
-            <span>Status: <strong className="text-slate-900 dark:text-white font-mono">ENFORCED</strong></span>
+          <div className="mt-6 pt-4 border-t-[3px] border-neu-border border-slate-100 flex items-center justify-between text-xs text-neu-text/80">
+            <span>Risk Severity: <strong className="text-emerald-600">{SAFETY_TEST_CASES[selectedSafetyCase].riskLevel}</strong></span>
+            <span>Status: <strong className="text-neu-text font-mono">ENFORCED</strong></span>
           </div>
         </div>
       </div>

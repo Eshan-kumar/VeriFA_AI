@@ -55,25 +55,25 @@ export default function ApiDocsPage() {
   return (
     <section className="py-16 md:py-24 px-6 max-w-7xl mx-auto flex-grow w-full mt-16">
       <div className="text-center max-w-3xl mx-auto mb-12">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 mb-3">
+        <div className="inline-flex items-center gap-2 px-3 py-1 text-xs font-black bg-emerald-500/10 text-emerald-600 border-[3px] border-neu-border border-emerald-500/20 mb-3 uppercase">
           <span>💻 Developer SDK & API</span>
         </div>
-        <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-neu-text tracking-tight mb-4">
           Integrate Security Audits in Lines of Code
         </h2>
-        <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base">
+        <p className="text-slate-600 text-sm md:text-base">
           Use our REST API, Node.js SDK, or Python package to run continuous evaluations in your CI/CD pipelines.
         </p>
       </div>
 
-      <div className="max-w-4xl mx-auto bg-[#0f172a] rounded-3xl overflow-hidden shadow-2xl border border-slate-800">
+      <div className="max-w-4xl mx-auto bg-[#0f172a] rounded-3xl overflow-hidden border-[3px] border-neu-border border-slate-800">
         {/* Code header bar */}
-        <div className="flex items-center justify-between px-6 py-4 bg-[#1e293b] border-b border-slate-800">
+        <div className="flex items-center justify-between px-6 py-4 bg-[#1e293b] border-b-[3px] border-neu-border border-slate-800">
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-red-500/80" />
-            <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
-            <span className="w-3 h-3 rounded-full bg-emerald-500/80" />
-            <span className="text-xs font-mono text-slate-400 ml-2">verifa-audit-example</span>
+            <span className="w-3 h-3 bg-red-500/80" />
+            <span className="w-3 h-3 bg-yellow-500/80" />
+            <span className="w-3 h-3 bg-emerald-500/80" />
+            <span className="text-xs font-mono text-neu-text/80 ml-2">verifa-audit-example</span>
           </div>
 
           {/* Language Selector Tabs */}
@@ -82,18 +82,18 @@ export default function ApiDocsPage() {
               <button
                 key={lang}
                 onClick={() => setActiveTabCode(lang)}
-                className={`px-3 py-1 rounded-lg text-xs font-mono capitalize transition-all cursor-pointer ${
+                className={`px-3 py-1 text-xs font-mono capitalize transition-all cursor-pointer ${
                   activeTabCode === lang
                     ? "bg-[#2fae63] text-white font-bold"
                     : "text-slate-400 hover:text-white hover:bg-slate-800"
-                }`}
+                } `}
               >
                 {lang === "bash" ? "cURL" : lang}
               </button>
             ))}
             <button
               onClick={handleCopyCode}
-              className="ml-2 px-3 py-1 rounded-lg text-xs font-mono bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors cursor-pointer border border-slate-700"
+              className="ml-2 px-3 py-1 text-xs font-mono bg-slate-800 text-slate-300 transition-colors cursor-pointer border-[3px] border-neu-border border-slate-700"
             >
               {copiedCode ? "Copied! ✓" : "Copy"}
             </button>

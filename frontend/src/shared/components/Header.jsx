@@ -16,10 +16,10 @@ export default function Header({
   onToggleDarkMode,
 }) {
   return (
-    <header className="flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 bg-white/80 dark:bg-[#111827]/80 backdrop-blur-md border-b border-[#ececec] dark:border-[#1f2937]">
+    <header className="flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 bg-white/80 backdrop-blur-md border-b-[3px] border-neu-border border-[#ececec]">
       <div className="flex items-center gap-2 sm:gap-3">
         <button
-          className="md:hidden w-10 h-10 rounded-xl flex items-center justify-center text-[#1c1c1e] dark:text-gray-200 hover:bg-[#f0f0ef] dark:hover:bg-gray-800 border-none bg-transparent cursor-pointer transition-colors active:scale-95"
+          className="md:hidden w-10 h-10 flex items-center justify-center text-[#1c1c1e] hover:bg-[#f0f0ef] border-none bg-transparent cursor-pointer transition-colors active:scale-95"
           onClick={() => setSidebarOpen(true)}
           aria-label="Open sidebar"
         >

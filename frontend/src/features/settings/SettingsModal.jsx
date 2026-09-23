@@ -158,17 +158,17 @@ export default function SettingsModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B1220]/75 backdrop-blur-md p-2.5 sm:p-4 animate-in fade-in duration-200">
       <div
-        className="bg-[#111A28] rounded-2xl sm:rounded-3xl max-w-[820px] w-full shadow-2xl border border-white/5 overflow-hidden relative animate-in zoom-in-95 duration-200 text-[#F1F5F9] flex flex-col max-h-[92vh]"
+        className="bg-neu-surface sm:rounded-3xl max-w-[820px] w-full border-[3px] border-neu-border border-white/5 overflow-hidden relative animate-in zoom-in-95 duration-200 text-neu-text flex flex-col max-h-[92vh] shadow-neu"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4.5 border-b border-white/5 bg-[#151F2E]">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4.5 border-b-[3px] border-neu-border border-white/5 bg-neu-surface border-[3px] shadow-neu">
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <div className="w-9 sm:w-10 h-9 sm:h-10 rounded-2xl bg-[#20B866]/10 text-[#20B866] flex items-center justify-center font-bold text-lg sm:text-xl border border-[#20B866]/20 shadow-xs flex-shrink-0">
+            <div className="w-9 sm:w-10 h-9 sm:h-10 bg-[#20B866]/10 text-neu-secondary flex items-center justify-center font-black text-lg sm:text-xl border-[3px] border-neu-border border-[#20B866]/20 shadow-xs flex-shrink-0 uppercase">
               ⚙️
             </div>
             <div className="min-w-0">
-              <h2 className="text-[15px] sm:text-[18px] font-bold tracking-tight text-[#F1F5F9] truncate">
+              <h2 className="text-[15px] sm:text-[18px] font-black tracking-tight text-neu-text truncate uppercase">
                 Framework Settings
               </h2>
               <p className="text-[11px] sm:text-[12.5px] text-[#94A3B8] truncate">
@@ -178,14 +178,14 @@ export default function SettingsModal({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-[#F1F5F9] hover:hover:bg-[#151F2E] transition-colors border-none bg-transparent cursor-pointer flex-shrink-0"
+            className="w-8 h-8 flex items-center justify-center text-neu-text/80 hover:text-[#F1F5F9] hover:hover:bg-[#151F2E] transition-colors border-none bg-transparent cursor-pointer flex-shrink-0"
           >
             ✕
           </button>
         </div>
 
         {/* Horizontal Navigation Tabs */}
-        <div className="flex border-b border-white/5 px-3 sm:px-6 gap-1 overflow-x-auto bg-[#151F2E] scrollbar-none">
+        <div className="flex border-b-[3px] border-neu-border border-white/5 px-3 sm:px-6 gap-1 overflow-x-auto bg-neu-surface scrollbar-none border-[3px] shadow-neu">
           {[
             { id: "general", label: "⚙️ General" },
             { id: "providers", label: "🤖 Models" },
@@ -212,10 +212,10 @@ export default function SettingsModal({
         </div>
 
         {/* Tab Body */}
-        <div className="p-4 sm:p-6 overflow-y-auto space-y-6 flex-1 text-[#F1F5F9]">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-6 flex-1 text-neu-text">
           {loading ? (
-            <div className="flex items-center justify-center py-12 text-slate-400 gap-2">
-              <span className="w-5 h-5 border-2 border-[#20B866] border-t-transparent rounded-full animate-spin" />
+            <div className="flex items-center justify-center py-12 text-neu-text/80 gap-2">
+              <span className="w-5 h-5 border-2 border-[#20B866] border-t-transparent animate-spin" />
               <span>Loading framework configurations...</span>
             </div>
           ) : (
@@ -224,7 +224,7 @@ export default function SettingsModal({
               {activeTab === "general" && (
                 <div className="space-y-5 animate-in fade-in duration-150">
                   <div>
-                    <h3 className="text-sm font-bold text-[#F1F5F9] mb-1">
+                    <h3 className="text-sm font-black text-neu-text mb-1 uppercase">
                       General Evaluator & Interface Settings
                     </h3>
                     <p className="text-xs text-[#94A3B8] mb-4">
@@ -234,7 +234,7 @@ export default function SettingsModal({
                     <div className="space-y-4">
                       {/* Full Name / Evaluator Name */}
                       <div>
-                        <label className="text-xs font-semibold text-[#F1F5F9] block mb-1.5">
+                        <label className="text-xs font-black text-neu-text block mb-1.5 uppercase">
                           Evaluator Full Name
                         </label>
                         <input
@@ -242,13 +242,13 @@ export default function SettingsModal({
                           placeholder="E.g. Eshan Kumar"
                           value={generalConfig.userName}
                           onChange={(e) => setGeneralConfig({ ...generalConfig, userName: e.target.value })}
-                          className="w-full bg-[#151F2E] border border-white/5 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#20B866] text-[#F1F5F9] font-medium"
+                          className="w-full bg-neu-surface border-[3px] border-neu-border border-white/5 px-3.5 py-2.5 text-xs outline-none focus:border-[#20B866] text-neu-text font-medium shadow-neu"
                         />
                       </div>
 
                       {/* Organization / Lab Name */}
                       <div>
-                        <label className="text-xs font-semibold text-[#F1F5F9] block mb-1.5">
+                        <label className="text-xs font-black text-neu-text block mb-1.5 uppercase">
                           Organization / Research Lab
                         </label>
                         <input
@@ -256,13 +256,13 @@ export default function SettingsModal({
                           placeholder="E.g. VERIFA.AI Security Lab"
                           value={generalConfig.organization}
                           onChange={(e) => setGeneralConfig({ ...generalConfig, organization: e.target.value })}
-                          className="w-full bg-[#151F2E] border border-white/5 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#20B866] text-[#F1F5F9] font-medium"
+                          className="w-full bg-neu-surface border-[3px] border-neu-border border-white/5 px-3.5 py-2.5 text-xs outline-none focus:border-[#20B866] text-neu-text font-medium shadow-neu"
                         />
                       </div>
 
                       {/* Theme Appearance Mode */}
                       <div>
-                        <label className="text-xs font-semibold text-[#F1F5F9] block mb-1.5">
+                        <label className="text-xs font-black text-neu-text block mb-1.5 uppercase">
                           Appearance & Theme Mode
                         </label>
                         <div className="grid grid-cols-3 gap-3">
@@ -280,15 +280,15 @@ export default function SettingsModal({
                             ].join(" ")}
                           >
                             <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-1.5 font-semibold text-xs text-[#F1F5F9]">
+                              <div className="flex items-center gap-1.5 font-black text-xs text-neu-text uppercase">
                                 <span>☀️</span> Light
                               </div>
                               {themeMode === "light" && (
-                                <span className="w-2 h-2 rounded-full bg-[#20B866] shadow-xs shadow-[#20B866]/50" />
+                                <span className="w-2 h-2 bg-neu-primary shadow-xs shadow-[#20B866]/50 border-[3px] border-neu-border shadow-neu hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none" />
                               )}
                             </div>
-                            <div className="h-8 bg-white rounded-lg border border-slate-200 p-1 flex items-center gap-1">
-                              <div className="w-2 h-2 rounded-full bg-[#20B866]" />
+                            <div className="h-8 bg-neu-surface border-[3px] border-neu-border p-1 flex items-center gap-1 shadow-neu">
+                              <div className="w-2 h-2 bg-neu-primary border-[3px] border-neu-border shadow-neu hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none" />
                               <div className="h-1 w-10 bg-slate-200 rounded" />
                             </div>
                           </div>
@@ -307,15 +307,15 @@ export default function SettingsModal({
                             ].join(" ")}
                           >
                             <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-1.5 font-semibold text-xs text-[#F1F5F9]">
+                              <div className="flex items-center gap-1.5 font-black text-xs text-neu-text uppercase">
                                 <span>🌙</span> Dark
                               </div>
                               {themeMode === "dark" && (
-                                <span className="w-2 h-2 rounded-full bg-[#20B866] shadow-xs shadow-[#20B866]/50" />
+                                <span className="w-2 h-2 bg-neu-primary shadow-xs shadow-[#20B866]/50 border-[3px] border-neu-border shadow-neu hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none" />
                               )}
                             </div>
-                            <div className="h-8 bg-slate-900 rounded-lg border border-slate-700 p-1 flex items-center gap-1">
-                              <div className="w-2 h-2 rounded-full bg-[#20B866]" />
+                            <div className="h-8 bg-slate-900 border-[3px] border-neu-border border-slate-700 p-1 flex items-center gap-1">
+                              <div className="w-2 h-2 bg-neu-primary border-[3px] border-neu-border shadow-neu hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none" />
                               <div className="h-1 w-10 bg-slate-700 rounded" />
                             </div>
                           </div>
@@ -334,15 +334,15 @@ export default function SettingsModal({
                             ].join(" ")}
                           >
                             <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-1.5 font-semibold text-xs text-[#F1F5F9]">
+                              <div className="flex items-center gap-1.5 font-black text-xs text-neu-text uppercase">
                                 <span>🖥️</span> System
                               </div>
                               {themeMode === "system" && (
-                                <span className="w-2 h-2 rounded-full bg-[#20B866] shadow-xs shadow-[#20B866]/50" />
+                                <span className="w-2 h-2 bg-neu-primary shadow-xs shadow-[#20B866]/50 border-[3px] border-neu-border shadow-neu hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none" />
                               )}
                             </div>
-                            <div className="h-8 bg-gradient-to-r from-white to-slate-900 rounded-lg border border-white/5 p-1 flex items-center gap-1">
-                              <div className="w-2 h-2 rounded-full bg-[#20B866]" />
+                            <div className="h-8 bg-gradient-to-r from-white to-slate-900 border-[3px] border-neu-border border-white/5 p-1 flex items-center gap-1">
+                              <div className="w-2 h-2 bg-neu-primary border-[3px] border-neu-border shadow-neu hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none" />
                               <div className="h-1 w-10 bg-slate-400 rounded" />
                             </div>
                           </div>
@@ -351,13 +351,13 @@ export default function SettingsModal({
 
                       {/* Interface Language */}
                       <div>
-                        <label className="text-xs font-semibold text-[#F1F5F9] block mb-1.5">
+                        <label className="text-xs font-black text-neu-text block mb-1.5 uppercase">
                           Interface Language
                         </label>
                         <select
                           value={generalConfig.language}
                           onChange={(e) => setGeneralConfig({ ...generalConfig, language: e.target.value })}
-                          className="w-full bg-[#151F2E] border border-white/5 rounded-xl px-3.5 py-2.5 text-xs font-medium outline-none focus:border-[#20B866]"
+                          className="w-full bg-neu-surface border-[3px] border-neu-border border-white/5 px-3.5 py-2.5 text-xs font-medium outline-none focus:border-[#20B866] shadow-neu"
                         >
                           <option value="English (US)">🌐 English (US)</option>
                           <option value="English (UK)">🌐 English (UK)</option>
@@ -375,7 +375,7 @@ export default function SettingsModal({
               {activeTab === "providers" && (
                 <div className="space-y-5 animate-in fade-in duration-150">
                   <div>
-                    <h3 className="text-sm font-bold text-[#F1F5F9] mb-1">
+                    <h3 className="text-sm font-black text-neu-text mb-1 uppercase">
                       Model Provider API Keys & Endpoints
                     </h3>
                     <p className="text-xs text-[#94A3B8] mb-4">
@@ -385,21 +385,21 @@ export default function SettingsModal({
                     <div className="space-y-4">
                       {/* OpenAI API Key */}
                       <div>
-                        <label className="text-xs font-semibold text-[#F1F5F9] block mb-1.5">
+                        <label className="text-xs font-black text-neu-text block mb-1.5 uppercase">
                           OpenAI API Key (GPT-4o, GPT-3.5)
                         </label>
-                        <div className="flex items-center bg-[#151F2E] border border-white/5 rounded-xl px-3 py-2 focus-within:border-[#20B866] transition-colors">
+                        <div className="flex items-center bg-neu-surface border-[3px] border-neu-border border-white/5 px-3 py-2 focus-within:border-[#20B866] transition-colors shadow-neu">
                           <input
                             type={showOpenaiKey ? "text" : "password"}
                             placeholder={providers.openaiKeyMasked || "sk-proj-..."}
                             value={providers.openaiKey}
                             onChange={(e) => setProviders({ ...providers, openaiKey: e.target.value })}
-                            className="flex-1 bg-transparent border-none outline-none text-xs font-mono text-[#F1F5F9]"
+                            className="flex-1 bg-transparent border-none outline-none text-xs font-mono text-neu-text"
                           />
                           <button
                             type="button"
                             onClick={() => setShowOpenaiKey(!showOpenaiKey)}
-                            className="text-slate-400 hover:text-slate-700 hover:text-[#F1F5F9] bg-transparent border-none cursor-pointer text-xs"
+                            className="text-neu-text/80 hover:text-slate-700 hover:text-[#F1F5F9] bg-transparent border-none cursor-pointer text-xs"
                           >
                             {showOpenaiKey ? "🙈" : "👁️"}
                           </button>
@@ -408,21 +408,21 @@ export default function SettingsModal({
 
                       {/* Anthropic API Key */}
                       <div>
-                        <label className="text-xs font-semibold text-[#F1F5F9] block mb-1.5">
+                        <label className="text-xs font-black text-neu-text block mb-1.5 uppercase">
                           Anthropic API Key (Claude 3.5 Sonnet, Haiku)
                         </label>
-                        <div className="flex items-center bg-[#151F2E] border border-white/5 rounded-xl px-3 py-2 focus-within:border-[#20B866] transition-colors">
+                        <div className="flex items-center bg-neu-surface border-[3px] border-neu-border border-white/5 px-3 py-2 focus-within:border-[#20B866] transition-colors shadow-neu">
                           <input
                             type={showAnthropicKey ? "text" : "password"}
                             placeholder={providers.anthropicKeyMasked || "sk-ant-..."}
                             value={providers.anthropicKey}
                             onChange={(e) => setProviders({ ...providers, anthropicKey: e.target.value })}
-                            className="flex-1 bg-transparent border-none outline-none text-xs font-mono text-[#F1F5F9]"
+                            className="flex-1 bg-transparent border-none outline-none text-xs font-mono text-neu-text"
                           />
                           <button
                             type="button"
                             onClick={() => setShowAnthropicKey(!showAnthropicKey)}
-                            className="text-slate-400 hover:text-slate-700 hover:text-[#F1F5F9] bg-transparent border-none cursor-pointer text-xs"
+                            className="text-neu-text/80 hover:text-slate-700 hover:text-[#F1F5F9] bg-transparent border-none cursor-pointer text-xs"
                           >
                             {showAnthropicKey ? "🙈" : "👁️"}
                           </button>
@@ -431,21 +431,21 @@ export default function SettingsModal({
 
                       {/* Google Gemini API Key */}
                       <div>
-                        <label className="text-xs font-semibold text-[#F1F5F9] block mb-1.5">
+                        <label className="text-xs font-black text-neu-text block mb-1.5 uppercase">
                           Google Gemini API Key (Gemini 1.5 Pro, Flash)
                         </label>
-                        <div className="flex items-center bg-[#151F2E] border border-white/5 rounded-xl px-3 py-2 focus-within:border-[#20B866] transition-colors">
+                        <div className="flex items-center bg-neu-surface border-[3px] border-neu-border border-white/5 px-3 py-2 focus-within:border-[#20B866] transition-colors shadow-neu">
                           <input
                             type={showGeminiKey ? "text" : "password"}
                             placeholder={providers.geminiKeyMasked || "AIzaSy..."}
                             value={providers.geminiKey}
                             onChange={(e) => setProviders({ ...providers, geminiKey: e.target.value })}
-                            className="flex-1 bg-transparent border-none outline-none text-xs font-mono text-[#F1F5F9]"
+                            className="flex-1 bg-transparent border-none outline-none text-xs font-mono text-neu-text"
                           />
                           <button
                             type="button"
                             onClick={() => setShowGeminiKey(!showGeminiKey)}
-                            className="text-slate-400 hover:text-slate-700 hover:text-[#F1F5F9] bg-transparent border-none cursor-pointer text-xs"
+                            className="text-neu-text/80 hover:text-slate-700 hover:text-[#F1F5F9] bg-transparent border-none cursor-pointer text-xs"
                           >
                             {showGeminiKey ? "🙈" : "👁️"}
                           </button>
@@ -454,7 +454,7 @@ export default function SettingsModal({
 
                       {/* Local / Self-Hosted Endpoint */}
                       <div>
-                        <label className="text-xs font-semibold text-[#F1F5F9] block mb-1.5">
+                        <label className="text-xs font-black text-neu-text block mb-1.5 uppercase">
                           Self-Hosted / Local LLM Endpoint URL (Ollama, vLLM, LM Studio)
                         </label>
                         <input
@@ -462,16 +462,16 @@ export default function SettingsModal({
                           placeholder="http://localhost:11434/v1"
                           value={providers.localEndpoint}
                           onChange={(e) => setProviders({ ...providers, localEndpoint: e.target.value })}
-                          className="w-full bg-[#151F2E] border border-white/5 rounded-xl px-3 py-2 text-xs font-mono outline-none focus:border-[#20B866] text-[#F1F5F9] transition-colors"
+                          className="w-full bg-neu-surface border-[3px] border-neu-border border-white/5 px-3 py-2 text-xs font-mono outline-none focus:border-[#20B866] text-neu-text transition-colors shadow-neu"
                         />
                       </div>
                     </div>
                   </div>
 
                   {/* Rate Limits & Timeouts */}
-                  <div className="pt-4 border-t border-white/5 grid grid-cols-2 gap-4">
+                  <div className="pt-4 border-t-[3px] border-neu-border border-white/5 grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs font-semibold text-[#F1F5F9] block mb-1">
+                      <label className="text-xs font-black text-neu-text block mb-1 uppercase">
                         Rate Limit (Req / Min)
                       </label>
                       <input
@@ -480,11 +480,11 @@ export default function SettingsModal({
                         max="1000"
                         value={providers.rateLimitReqPerMin}
                         onChange={(e) => setProviders({ ...providers, rateLimitReqPerMin: Number(e.target.value) })}
-                        className="w-full bg-[#151F2E] border border-white/5 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#20B866]"
+                        className="w-full bg-neu-surface border-[3px] border-neu-border border-white/5 px-3 py-2 text-xs outline-none focus:border-[#20B866] shadow-neu"
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-semibold text-[#F1F5F9] block mb-1">
+                      <label className="text-xs font-black text-neu-text block mb-1 uppercase">
                         Request Timeout (Sec)
                       </label>
                       <input
@@ -493,7 +493,7 @@ export default function SettingsModal({
                         max="300"
                         value={providers.timeoutSec}
                         onChange={(e) => setProviders({ ...providers, timeoutSec: Number(e.target.value) })}
-                        className="w-full bg-[#151F2E] border border-white/5 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#20B866]"
+                        className="w-full bg-neu-surface border-[3px] border-neu-border border-white/5 px-3 py-2 text-xs outline-none focus:border-[#20B866] shadow-neu"
                       />
                     </div>
                   </div>
@@ -504,7 +504,7 @@ export default function SettingsModal({
               {activeTab === "rubrics" && (
                 <div className="space-y-5 animate-in fade-in duration-150">
                   <div>
-                    <h3 className="text-sm font-bold text-[#F1F5F9] mb-1">
+                    <h3 className="text-sm font-black text-neu-text mb-1 uppercase">
                       Active Ethical Evaluation Rubrics & Weights
                     </h3>
                     <p className="text-xs text-[#94A3B8] mb-4">
@@ -522,12 +522,12 @@ export default function SettingsModal({
                     ].map((item) => {
                       const rubric = rubrics[item.key] || { enabled: true, weight: 20, threshold: 85 }
                       return (
-                        <div key={item.key} className="p-3.5 rounded-2xl border border-white/5 bg-[#151F2E] space-y-3">
+                        <div key={item.key} className="p-3.5 border-[3px] border-neu-border border-white/5 bg-neu-surface space-y-3 shadow-neu">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2.5">
                               <span className="text-base">{item.icon}</span>
                               <div>
-                                <div className="text-xs font-bold text-[#F1F5F9]">{item.label}</div>
+                                <div className="text-xs font-black text-neu-text uppercase">{item.label}</div>
                                 <div className="text-[11px] text-[#94A3B8]">{item.desc}</div>
                               </div>
                             </div>
@@ -545,11 +545,11 @@ export default function SettingsModal({
                           </div>
 
                           {rubric.enabled && (
-                            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-slate-200/60 dark:border-slate-800/60 text-xs">
+                            <div className="grid grid-cols-2 gap-4 pt-2 border-t-[3px] border-neu-border border-slate-200/60 text-xs">
                               <div>
                                 <div className="flex items-center justify-between text-[#64748B] mb-1">
                                   <span>Weight:</span>
-                                  <span className="font-semibold text-[#20B866]">{rubric.weight}%</span>
+                                  <span className="font-black text-neu-secondary uppercase">{rubric.weight}%</span>
                                 </div>
                                 <input
                                   type="range"
@@ -569,7 +569,7 @@ export default function SettingsModal({
                               <div>
                                 <div className="flex items-center justify-between text-[#64748B] mb-1">
                                   <span>Pass Threshold:</span>
-                                  <span className="font-semibold text-[#20B866]">{rubric.threshold}%</span>
+                                  <span className="font-black text-neu-secondary uppercase">{rubric.threshold}%</span>
                                 </div>
                                 <input
                                   type="range"
@@ -598,7 +598,7 @@ export default function SettingsModal({
               {activeTab === "datasets" && (
                 <div className="space-y-5 animate-in fade-in duration-150">
                   <div>
-                    <h3 className="text-sm font-bold text-[#F1F5F9] mb-1">
+                    <h3 className="text-sm font-black text-neu-text mb-1 uppercase">
                       Evaluation Dataset Management
                     </h3>
                     <p className="text-xs text-[#94A3B8] mb-4">
@@ -608,13 +608,13 @@ export default function SettingsModal({
 
                   <div className="space-y-4">
                     <div>
-                      <label className="text-xs font-semibold text-[#F1F5F9] block mb-1.5">
+                      <label className="text-xs font-black text-neu-text block mb-1.5 uppercase">
                         Active Benchmark Prompt Dataset
                       </label>
                       <select
                         value={datasets.activeDataset}
                         onChange={(e) => setDatasets({ ...datasets, activeDataset: e.target.value })}
-                        className="w-full bg-[#151F2E] border border-white/5 rounded-xl px-3 py-2.5 text-xs font-medium outline-none focus:border-[#20B866]"
+                        className="w-full bg-neu-surface border-[3px] border-neu-border border-white/5 px-3 py-2.5 text-xs font-medium outline-none focus:border-[#20B866] shadow-neu"
                       >
                         <option value="Adversarial Red-Team Benchmark">🚩 Adversarial Red-Team Benchmark (250 Prompts)</option>
                         <option value="Customer Safety Evaluation Suite">🛡️ Customer Safety Evaluation Suite (150 Prompts)</option>
@@ -624,9 +624,9 @@ export default function SettingsModal({
                     </div>
 
                     <div>
-                      <div className="flex items-center justify-between text-xs font-semibold mb-1">
-                        <span className="text-[#F1F5F9]">Evaluation Sample Size</span>
-                        <span className="text-[#20B866]">{datasets.sampleSize} Prompts</span>
+                      <div className="flex items-center justify-between text-xs font-black mb-1 uppercase">
+                        <span className="text-neu-text">Evaluation Sample Size</span>
+                        <span className="text-neu-secondary">{datasets.sampleSize} Prompts</span>
                       </div>
                       <input
                         type="range"
@@ -639,9 +639,9 @@ export default function SettingsModal({
                       />
                     </div>
 
-                    <div className="p-3.5 rounded-2xl border border-amber-500/20 bg-amber-500/10 flex items-center justify-between">
+                    <div className="p-3.5 border-[3px] border-neu-border border-amber-500/20 bg-amber-500/10 flex items-center justify-between">
                       <div>
-                        <div className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                        <div className="text-xs font-black text-amber-600 uppercase">
                           Restricted Access Dataset Tag
                         </div>
                         <div className="text-[11px] text-[#94A3B8]">
@@ -663,7 +663,7 @@ export default function SettingsModal({
               {activeTab === "judge" && (
                 <div className="space-y-5 animate-in fade-in duration-150">
                   <div>
-                    <h3 className="text-sm font-bold text-[#F1F5F9] mb-1">
+                    <h3 className="text-sm font-black text-neu-text mb-1 uppercase">
                       Scoring & LLM-as-a-Judge Settings
                     </h3>
                     <p className="text-xs text-[#94A3B8] mb-4">
@@ -673,13 +673,13 @@ export default function SettingsModal({
 
                   <div className="space-y-4">
                     <div>
-                      <label className="text-xs font-semibold text-[#F1F5F9] block mb-1.5">
+                      <label className="text-xs font-black text-neu-text block mb-1.5 uppercase">
                         Scoring Evaluation Method
                       </label>
                       <select
                         value={judgeConfig.method}
                         onChange={(e) => setJudgeConfig({ ...judgeConfig, method: e.target.value })}
-                        className="w-full bg-[#151F2E] border border-white/5 rounded-xl px-3 py-2.5 text-xs font-medium outline-none focus:border-[#20B866]"
+                        className="w-full bg-neu-surface border-[3px] border-neu-border border-white/5 px-3 py-2.5 text-xs font-medium outline-none focus:border-[#20B866] shadow-neu"
                       >
                         <option value="LLM-as-a-Judge">👩‍⚖️ LLM-as-a-Judge (Automated Guardrail)</option>
                         <option value="Rule-Based Evaluator">📏 Rule-Based Regex & Safety Key Filters</option>
@@ -689,13 +689,13 @@ export default function SettingsModal({
                     </div>
 
                     <div>
-                      <label className="text-xs font-semibold text-[#F1F5F9] block mb-1.5">
+                      <label className="text-xs font-black text-neu-text block mb-1.5 uppercase">
                         Judge Model Engine
                       </label>
                       <select
                         value={judgeConfig.judgeModel}
                         onChange={(e) => setJudgeConfig({ ...judgeConfig, judgeModel: e.target.value })}
-                        className="w-full bg-[#151F2E] border border-white/5 rounded-xl px-3 py-2.5 text-xs font-medium outline-none focus:border-[#20B866]"
+                        className="w-full bg-neu-surface border-[3px] border-neu-border border-white/5 px-3 py-2.5 text-xs font-medium outline-none focus:border-[#20B866] shadow-neu"
                       >
                         <option value="GPT-4o (Ethical Guardrail)">OpenAI GPT-4o (Recommended Judge)</option>
                         <option value="Claude 3.5 Sonnet (Safety Judge)">Anthropic Claude 3.5 Sonnet</option>
@@ -705,9 +705,9 @@ export default function SettingsModal({
                     </div>
 
                     <div>
-                      <div className="flex items-center justify-between text-xs font-semibold mb-1">
-                        <span className="text-[#F1F5F9]">Overall Pass Threshold Score</span>
-                        <span className="text-[#20B866]">{judgeConfig.passThresholdPercent}%</span>
+                      <div className="flex items-center justify-between text-xs font-black mb-1 uppercase">
+                        <span className="text-neu-text">Overall Pass Threshold Score</span>
+                        <span className="text-neu-secondary">{judgeConfig.passThresholdPercent}%</span>
                       </div>
                       <input
                         type="range"
@@ -726,7 +726,7 @@ export default function SettingsModal({
               {activeTab === "logging" && (
                 <div className="space-y-5 animate-in fade-in duration-150">
                   <div>
-                    <h3 className="text-sm font-bold text-[#F1F5F9] mb-1">
+                    <h3 className="text-sm font-black text-neu-text mb-1 uppercase">
                       Data & Privacy Controls
                     </h3>
                     <p className="text-xs text-[#94A3B8] mb-4">
@@ -735,9 +735,9 @@ export default function SettingsModal({
                   </div>
 
                   <div className="space-y-3">
-                    <div className="p-3.5 rounded-2xl border border-white/5 flex items-center justify-between">
+                    <div className="p-3.5 border-[3px] border-neu-border border-white/5 flex items-center justify-between">
                       <div>
-                        <div className="text-xs font-bold text-[#F1F5F9]">Log Evaluation Transcripts</div>
+                        <div className="text-xs font-black text-neu-text uppercase">Log Evaluation Transcripts</div>
                         <div className="text-[11px] text-[#94A3B8]">Save detailed model prompts and outputs to MongoDB.</div>
                       </div>
                       <input
@@ -748,9 +748,9 @@ export default function SettingsModal({
                       />
                     </div>
 
-                    <div className="p-3.5 rounded-2xl border border-white/5 flex items-center justify-between">
+                    <div className="p-3.5 border-[3px] border-neu-border border-white/5 flex items-center justify-between">
                       <div>
-                        <div className="text-xs font-bold text-[#F1F5F9]">Redact & Anonymize PII</div>
+                        <div className="text-xs font-black text-neu-text uppercase">Redact & Anonymize PII</div>
                         <div className="text-[11px] text-[#94A3B8]">Automatically strip emails, phone numbers, and names before saving.</div>
                       </div>
                       <input
@@ -762,7 +762,7 @@ export default function SettingsModal({
                     </div>
 
                     <div>
-                      <label className="text-xs font-semibold text-[#F1F5F9] block mb-1">
+                      <label className="text-xs font-black text-neu-text block mb-1 uppercase">
                         Data Retention Period (Days)
                       </label>
                       <input
@@ -771,7 +771,7 @@ export default function SettingsModal({
                         max="365"
                         value={loggingConfig.retentionDays}
                         onChange={(e) => setLoggingConfig({ ...loggingConfig, retentionDays: Number(e.target.value) })}
-                        className="w-full bg-[#151F2E] border border-white/5 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#20B866]"
+                        className="w-full bg-neu-surface border-[3px] border-neu-border border-white/5 px-3 py-2 text-xs outline-none focus:border-[#20B866] shadow-neu"
                       />
                     </div>
                   </div>
@@ -782,7 +782,7 @@ export default function SettingsModal({
               {activeTab === "alerts" && (
                 <div className="space-y-5 animate-in fade-in duration-150">
                   <div>
-                    <h3 className="text-sm font-bold text-[#F1F5F9] mb-1">
+                    <h3 className="text-sm font-black text-neu-text mb-1 uppercase">
                       Alerts & CI/CD Webhooks
                     </h3>
                     <p className="text-xs text-[#94A3B8] mb-4">
@@ -792,7 +792,7 @@ export default function SettingsModal({
 
                   <div className="space-y-4">
                     <div>
-                      <label className="text-xs font-semibold text-[#F1F5F9] block mb-1.5">
+                      <label className="text-xs font-black text-neu-text block mb-1.5 uppercase">
                         Alert Recipient Email Address
                       </label>
                       <input
@@ -800,12 +800,12 @@ export default function SettingsModal({
                         placeholder="eval-alerts@company.com"
                         value={alertsConfig.alertEmail}
                         onChange={(e) => setAlertsConfig({ ...alertsConfig, alertEmail: e.target.value })}
-                        className="w-full bg-[#151F2E] border border-white/5 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#20B866]"
+                        className="w-full bg-neu-surface border-[3px] border-neu-border border-white/5 px-3 py-2 text-xs outline-none focus:border-[#20B866] shadow-neu"
                       />
                     </div>
 
                     <div>
-                      <label className="text-xs font-semibold text-[#F1F5F9] block mb-1.5">
+                      <label className="text-xs font-black text-neu-text block mb-1.5 uppercase">
                         Slack / Teams Webhook URL
                       </label>
                       <input
@@ -813,18 +813,18 @@ export default function SettingsModal({
                         placeholder="https://hooks.slack.com/services/..."
                         value={alertsConfig.webhookUrl}
                         onChange={(e) => setAlertsConfig({ ...alertsConfig, webhookUrl: e.target.value })}
-                        className="w-full bg-[#151F2E] border border-white/5 rounded-xl px-3 py-2 text-xs font-mono outline-none focus:border-[#20B866]"
+                        className="w-full bg-neu-surface border-[3px] border-neu-border border-white/5 px-3 py-2 text-xs font-mono outline-none focus:border-[#20B866] shadow-neu"
                       />
                     </div>
 
                     <div>
-                      <label className="text-xs font-semibold text-[#F1F5F9] block mb-1.5">
+                      <label className="text-xs font-black text-neu-text block mb-1.5 uppercase">
                         Export Format Preference
                       </label>
                       <select
                         value={integrationsConfig.exportFormat}
                         onChange={(e) => setIntegrationsConfig({ ...integrationsConfig, exportFormat: e.target.value })}
-                        className="w-full bg-[#151F2E] border border-white/5 rounded-xl px-3 py-2 text-xs font-medium outline-none focus:border-[#20B866]"
+                        className="w-full bg-neu-surface border-[3px] border-neu-border border-white/5 px-3 py-2 text-xs font-medium outline-none focus:border-[#20B866] shadow-neu"
                       >
                         <option value="JSON">JSON Format</option>
                         <option value="CSV">CSV Spreadsheet</option>
@@ -839,7 +839,7 @@ export default function SettingsModal({
               {activeTab === "account" && (
                 <div className="space-y-5 animate-in fade-in duration-150">
                   <div>
-                    <h3 className="text-sm font-bold text-[#F1F5F9] mb-1">
+                    <h3 className="text-sm font-black text-neu-text mb-1 uppercase">
                       Account & Team Role
                     </h3>
                     <p className="text-xs text-[#94A3B8] mb-4">
@@ -847,18 +847,18 @@ export default function SettingsModal({
                     </p>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-[#151F2E] border border-white/5 space-y-2">
+                  <div className="p-4 bg-neu-surface border-[3px] border-neu-border border-white/5 space-y-2 shadow-neu">
                     <div className="text-xs text-[#94A3B8]">Signed In Evaluator</div>
-                    <div className="text-sm font-bold text-[#F1F5F9] flex items-center gap-2">
+                    <div className="text-sm font-black text-neu-text flex items-center gap-2 uppercase">
                       <span>👤</span>
                       <span>{authUser?.email || generalConfig.userEmail || "Guest Evaluator Session"}</span>
                     </div>
-                    <span className="inline-block text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-[#20B866]/10 text-[#20B866] border border-[#20B866]/20">
+                    <span className="inline-block text-[11px] font-medium px-2.5 py-0.5 bg-[#20B866]/10 text-neu-secondary border-[3px] border-neu-border border-[#20B866]/20">
                       Lead Ethical Evaluator
                     </span>
                   </div>
 
-                  <div className="pt-4 border-t border-white/5 space-y-3">
+                  <div className="pt-4 border-t-[3px] border-neu-border border-white/5 space-y-3">
                     <button
                       type="button"
                       onClick={() => {
@@ -867,7 +867,7 @@ export default function SettingsModal({
                           onClose()
                         }
                       }}
-                      className="w-full px-4 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 text-xs font-semibold border border-red-500/20 cursor-pointer transition-colors"
+                      className="w-full px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-600 text-xs font-black border-[3px] border-neu-border border-red-500/20 cursor-pointer transition-colors uppercase"
                     >
                       🗑️ Clear All Evaluation History
                     </button>
@@ -879,10 +879,10 @@ export default function SettingsModal({
         </div>
 
         {/* Modal Footer with User Session & Log Out */}
-        <div className="p-4 px-6 border-t border-white/5 bg-[#151F2E] flex items-center justify-between">
+        <div className="p-4 px-6 border-t-[3px] border-neu-border border-white/5 bg-neu-surface flex items-center justify-between border-[3px] shadow-neu">
           <div className="flex items-center gap-2 text-xs text-[#94A3B8] min-w-0 flex-1 mr-3">
             <span className="flex-shrink-0">👤</span>
-            <span className="truncate font-medium text-slate-700 dark:text-slate-200">
+            <span className="truncate font-medium text-slate-700">
               {generalConfig.userName || authUser?.email || "Evaluator User"}
             </span>
           </div>
@@ -894,7 +894,7 @@ export default function SettingsModal({
                   onClose()
                   handleLogout()
                 }}
-                className="px-3.5 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5"
+                className="px-3.5 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-600 border-[3px] border-neu-border border-red-500/20 text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 uppercase"
               >
                 <span>🚪 Log Out</span>
               </button>
@@ -903,11 +903,11 @@ export default function SettingsModal({
             <button
               onClick={handleSaveSettings}
               disabled={saving}
-              className="px-5 py-2 rounded-xl bg-[#20B866] hover:bg-emerald-600 text-white text-xs font-semibold border-none cursor-pointer shadow-sm shadow-emerald-500/30 transition-all flex items-center gap-1.5 disabled:opacity-50"
+              className="px-5 py-2 bg-neu-primary hover:bg-emerald-600 text-neu-text text-xs font-black border-none cursor-pointer shadow-emerald-500/30 transition-all flex items-center gap-1.5 disabled:opacity-50 border-[3px] border-neu-border shadow-neu hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none uppercase"
             >
               {saving ? (
                 <>
-                  <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent animate-spin" />
                   <span>Saving...</span>
                 </>
               ) : (
