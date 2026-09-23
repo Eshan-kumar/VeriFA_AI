@@ -6,6 +6,7 @@ import BatchEvaluator from './BatchEvaluator';
 import AdminDashboard from './AdminDashboard';
 import SettingsModal from '../features/settings/SettingsModal';
 import RiskDashboardPanel from '../features/evaluation/RiskDashboardPanel';
+import EvaluationReport from '../features/evaluation/EvaluationReport';
 import { API_BASE_URL } from '../shared/services/api';
 
 export default function Dashboard() {
@@ -85,14 +86,8 @@ export default function Dashboard() {
 
     setCurrentEvaluation({
       botResponse: ev.bot_response || (ev.target_chatbot === 'Manual Entry' ? '(Manual Entry)' : 'Loaded from history...'),
-      score: ev.overall_score,
-      toxicity: ev.ethical_scores?.Toxicity?.score || 1,
-      hallucination: ev.ethical_scores?.Hallucination?.score || 1,
-      bias: ev.ethical_scores?.Bias?.score || 1,
-      privacy: ev.ethical_scores?.Privacy?.score || 1,
-      safety: ev.ethical_scores?.Safety?.score || 1,
-      transparency: ev.ethical_scores?.Transparency?.score || 1,
-      quality: ev.ethical_scores?.Quality?.score || 1,
+      overall_score: ev.overall_score,
+      ethical_scores: ev.ethical_scores || {},
       isGreeting: false
     });
     setPromptInput(ev.prompt || ev.user_prompt || '');
@@ -161,14 +156,11 @@ export default function Dashboard() {
 
       const evalPayload = {
         botResponse: evalData.botResponse || "As an AI language model...",
-        score: evalData.overall_score || 85,
-        toxicity: evalData.ethical_scores?.Toxicity?.score || 1,
-        hallucination: evalData.ethical_scores?.Hallucination?.score || 1,
-        bias: evalData.ethical_scores?.Bias?.score || 1,
-        privacy: evalData.ethical_scores?.Privacy?.score || 1,
-        safety: evalData.ethical_scores?.Safety?.score || 1,
-        transparency: evalData.ethical_scores?.Transparency?.score || 1,
-        quality: evalData.ethical_scores?.Quality?.score || 1
+        overall_score: evalData.overall_score || 85,
+        ethical_scores: evalData.ethical_scores || {
+          Toxicity: { score: 1 }, Hallucination: { score: 1 }, Bias: { score: 1 },
+          Privacy: { score: 1 }, Safety: { score: 1 }, Transparency: { score: 10 }, Quality: { score: 10 }
+        }
       };
 
       const { data: insertedData, error: insertError } = await supabase.from('evaluations').insert({
@@ -176,16 +168,8 @@ export default function Dashboard() {
         user_prompt: promptInput,
         target_chatbot: inputMode === 'Manual' ? 'Manual Entry' : 'Gemini 2.5 Flash',
         bot_response: evalPayload.botResponse,
-        overall_score: evalPayload.score,
-        ethical_scores: {
-          Toxicity: { score: evalPayload.toxicity },
-          Hallucination: { score: evalPayload.hallucination },
-          Bias: { score: evalPayload.bias },
-          Privacy: { score: evalPayload.privacy },
-          Safety: { score: evalPayload.safety },
-          Transparency: { score: evalPayload.transparency },
-          Quality: { score: evalPayload.quality }
-        }
+        overall_score: evalPayload.overall_score,
+        ethical_scores: evalPayload.ethical_scores
       }).select();
 
       if (insertError) {
@@ -204,7 +188,7 @@ export default function Dashboard() {
         id: Date.now() + 1,
         role: 'assistant',
         isEvaluation: true,
-        text: `Evaluation complete. The bot response scored ${evalPayload.score}/100 overall.`,
+        text: `Evaluation complete. The bot response scored ${evalPayload.overall_score}/100 overall.`,
         metrics: evalPayload,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
@@ -611,47 +595,8 @@ export default function Dashboard() {
                                 </div>
                               </div>
 
-                              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mt-4">
-                                <div className="bg-neu-surface border-[3px] border-neu-border p-3 shadow-neu">
-                                  <div className="text-[11px] text-neu-text/80 mb-1.5 font-medium">Overall Score</div>
-                                  <div className="text-neu-secondary font-black text-[15px] uppercase">{currentEvaluation ? currentEvaluation.score : '-'}/100</div>
-                                </div>
-                                <div className="bg-neu-surface border-[3px] border-neu-border p-3 shadow-neu">
-                                  <div className="text-[11px] text-neu-text/80 mb-1.5 font-medium">Toxicity <span className="text-gray-600 font-normal">(Lower is Better)</span></div>
-                                  <div className="text-neu-text font-black text-[15px] uppercase">{currentEvaluation ? currentEvaluation.toxicity : '-'}/10</div>
-                                </div>
-                                <div className="bg-neu-surface border-[3px] border-neu-border p-3 shadow-neu">
-                                  <div className="text-[11px] text-neu-text/80 mb-1.5 font-medium">Hallucination <span className="text-gray-600 font-normal">(Lower is Better)</span></div>
-                                  <div className="text-neu-text font-black text-[15px] uppercase">{currentEvaluation ? currentEvaluation.hallucination : '-'}/10</div>
-                                </div>
-                                <div className="bg-neu-surface border-[3px] border-neu-border p-3 shadow-neu">
-                                  <div className="text-[11px] text-neu-text/80 mb-1.5 font-medium">Bias <span className="text-gray-600 font-normal">(Lower is Better)</span></div>
-                                  <div className="text-neu-text font-black text-[15px] uppercase">{currentEvaluation ? currentEvaluation.bias : '-'}/10</div>
-                                </div>
-                                <div className="bg-neu-surface border-[3px] border-neu-border p-3 shadow-neu">
-                                  <div className="text-[11px] text-neu-text/80 mb-1.5 font-medium">Privacy <span className="text-gray-600 font-normal">(Lower is Better)</span></div>
-                                  <div className="text-neu-text font-black text-[15px] uppercase">{currentEvaluation ? currentEvaluation.privacy : '-'}/10</div>
-                                </div>
-                                <div className="bg-neu-surface border-[3px] border-neu-border p-3 shadow-neu">
-                                  <div className="text-[11px] text-neu-text/80 mb-1.5 font-medium">Safety Risk <span className="text-gray-600 font-normal">(Lower is Better)</span></div>
-                                  <div className="text-neu-text font-black text-[15px] uppercase">{currentEvaluation ? currentEvaluation.safety : '-'}/10</div>
-                                </div>
-                                <div className="bg-neu-surface border-[3px] border-neu-border p-3 shadow-neu">
-                                  <div className="text-[11px] text-neu-text/80 mb-1.5 font-medium">Transparency <span className="text-gray-600 font-normal">(Higher is Better)</span></div>
-                                  <div className="text-neu-text font-black text-[15px] uppercase">{currentEvaluation ? currentEvaluation.transparency : '-'}/10</div>
-                                </div>
-                                <div className="bg-neu-surface border-[3px] border-neu-border p-3 shadow-neu">
-                                  <div className="text-[11px] text-neu-text/80 mb-1.5 font-medium">Response Quality <span className="text-gray-600 font-normal">(Higher is Better)</span></div>
-                                  <div className="text-neu-text font-black text-[15px] uppercase">{currentEvaluation ? currentEvaluation.quality : '-'}/10</div>
-                                </div>
-                              </div>
-
-                              <div className="mt-8 flex justify-between items-center text-[12px] text-neu-text/80 font-medium pt-6 border-t-[3px] border-neu-border">
-                                <div>Source / Target: <span className="font-mono text-neu-text/80 font-black ml-2 uppercase">http://localhost:11434/v1</span></div>
-                                <div className="text-right">
-                                  <div className="italic text-neu-text/80 mb-0.5">{riskProfile.description}</div>
-                                  <div className="text-[10px] text-neu-text/80 font-black uppercase tracking-wide">Key Factor: {riskProfile.primaryFactor}</div>
-                                </div>
+                              <div className="mt-4">
+                                <EvaluationReport evaluationData={currentEvaluation} />
                               </div>
                             </div>
                           </div>

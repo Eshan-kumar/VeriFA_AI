@@ -2,6 +2,7 @@
  * API Service for Backend Communication
  * Connects to Vercel Serverless Functions
  */
+import { supabase } from '../../lib/supabaseClient'
 
 const envBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
 // Sanitize trailing slash
@@ -12,11 +13,22 @@ async function request(endpoint, options = {}) {
   // If API_BASE_URL is '/api', don't append it again if endpoint already has it, 
   // but for consistency we expect endpoint to be like '/settings'
   const url = `${API_BASE_URL}${endpoint}`
+  
+  // Attach Supabase Auth token if user is signed in
+  const { data: { session } } = await supabase.auth.getSession()
+  const token = session?.access_token
+
+  const headers = {
+    "Content-Type": "application/json",
+    ...options.headers,
+  }
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`
+  }
+
   const config = {
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
+    headers,
     ...options,
   }
 
