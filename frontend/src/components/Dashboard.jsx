@@ -5,7 +5,6 @@ import html2pdf from 'html2pdf.js';
 import BatchEvaluator from './BatchEvaluator';
 import AdminDashboard from './AdminDashboard';
 import SettingsModal from '../features/settings/SettingsModal';
-import ThemeToggleSlider from '../shared/components/ThemeToggleSlider';
 import RiskDashboardPanel from '../features/evaluation/RiskDashboardPanel';
 
 export default function Dashboard() {
@@ -15,7 +14,6 @@ export default function Dashboard() {
   const [evaluationMode, setEvaluationMode] = useState('api');
   const [history, setHistory] = useState([]);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
-  const [darkMode, setDarkMode] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchInput, setShowSearchInput] = useState(false);
   const navigate = useNavigate();
@@ -363,7 +361,7 @@ export default function Dashboard() {
   });
 
   return (
-    <div className={`min-h-screen flex flex-col lg:flex-row bg-neu-bg text-neu-text font-sans overflow-x-hidden ${darkMode ? 'dark' : ''} `}>
+    <div className={`min-h-screen flex flex-col lg:flex-row bg-neu-bg text-neu-text font-sans overflow-x-hidden `}>
 
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
@@ -506,9 +504,6 @@ export default function Dashboard() {
               <div className="bg-neu-surface px-4 py-1.5 flex items-center gap-2 border-[3px] border-neu-border shadow-neu">
                 <div className="w-2 h-2 bg-neu-primary shadow-[0_0_8px_rgba(32,184,102,0.6)] border-[3px] border-neu-border shadow-neu hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"></div>
                 <span className="text-sm font-medium text-neu-text">{authUser.email.split('@')[0]}</span>
-              </div>
-              <div>
-                <ThemeToggleSlider darkMode={darkMode} setDarkMode={setDarkMode} label={false} />
               </div>
             </div>
           </header>

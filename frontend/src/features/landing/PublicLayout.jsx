@@ -17,13 +17,11 @@ export default function PublicLayout({
     { name: "X", href: "https://x.com", icon: "twitter" },
   ],
   onLoginClick,
-  darkMode = true,
-  onToggleDarkMode,
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className={`flex flex-col min-h-screen font-sans transition-colors duration-300 bg-neu-bg text-neu-text ${darkMode ? "dark" : ""}`}>
+    <div className={`flex flex-col min-h-screen font-sans transition-colors duration-300 bg-neu-bg text-neu-text`}>
       
       {/* ── TOP NAVBAR ── */}
       <nav className="relative z-20 w-full max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -91,28 +89,7 @@ export default function PublicLayout({
             ))}
           </div>
 
-          {/* Smooth Animated Theme Toggle Slider */}
-          {onToggleDarkMode && (
-            <button
-              type="button"
-              onClick={onToggleDarkMode}
-              className={[
-                "relative inline-flex h-8 w-14 shrink-0 cursor-pointer border-2 border-neu-border transition-colors duration-300 ease-in-out shadow-neu hover:shadow-none items-center",
-                darkMode ? "bg-neu-primary" : "bg-neu-secondary",
-              ].join(" ")}
-              title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            >
-              <span className="sr-only">Toggle theme</span>
-              <span
-                className={[
-                  "pointer-events-none inline-block h-6 w-6 transform border-2 border-neu-border bg-neu-surface transition duration-300 ease-in-out flex items-center justify-center text-[11px]",
-                  darkMode ? "translate-x-6" : "translate-x-0",
-                ].join(" ")}
-              >
-                {darkMode ? "🌙" : "☀️"}
-              </span>
-            </button>
-          )}
+
 
           <button
             onClick={onLoginClick}
@@ -124,14 +101,7 @@ export default function PublicLayout({
 
         {/* Mobile Hamburger Toggle */}
         <div className="flex items-center gap-2 md:hidden">
-          {onToggleDarkMode && (
-            <button
-              onClick={onToggleDarkMode}
-              className="w-9 h-9 bg-neu-surface flex items-center justify-center text-neu-text border-2 border-neu-border shadow-neu text-xs"
-            >
-              {darkMode ? "🌙" : "☀️"}
-            </button>
-          )}
+
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="w-10 h-10 bg-neu-surface flex items-center justify-center text-neu-text border-2 border-neu-border shadow-neu font-black"

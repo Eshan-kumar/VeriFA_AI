@@ -26,16 +26,7 @@
     --neu-shadow: #111111;
   }
 
-  .dark {
-    --neu-primary: #FFB300;
-    --neu-secondary: #00B8D4;
-    --neu-accent: #D500F9;
-    --neu-bg: #1A1C23; /* Dark background */
-    --neu-surface: #222530; /* Slightly lighter dark surface */
-    --neu-border: #E5E7EB; /* Light border in dark mode */
-    --neu-text: #F3F4F6;
-    --neu-shadow: #E5E7EB;
-  }
+
   
   body {
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
