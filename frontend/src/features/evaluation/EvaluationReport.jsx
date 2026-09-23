@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip } from 'recharts';
 
 export default function EvaluationReport({ evaluationData }) {
   if (!evaluationData || !evaluationData.ethical_scores) return null;
@@ -13,11 +13,17 @@ export default function EvaluationReport({ evaluationData }) {
   }));
 
   // Recharts data
-  const chartData = metricsList.map(item => ({
-    subject: item.metric,
-    A: item.score,
-    fullMark: 10,
-  }));
+  const chartData = metricsList.map(item => {
+    const isNegative = ["Toxicity", "Hallucination", "Bias", "Privacy", "Safety"].includes(item.metric);
+    return {
+      subject: item.metric,
+      // Plot visually where 10 is always perfect (e.g., Toxicity 1 visually plots at 10)
+      plotScore: isNegative ? 11 - item.score : item.score,
+      originalScore: item.score, 
+      reasoning: item.reasoning,
+      fullMark: 10,
+    };
+  });
 
   // Calculate highest risk
   const getRiskLevel = (metric, score) => {
@@ -36,22 +42,38 @@ export default function EvaluationReport({ evaluationData }) {
 
   const highestRiskMetric = useMemo(() => {
     let worst = null;
-    let worstSeverity = -1; // 0=Pass, 1=Warning, 2=Critical
+    let maxDeviation = -1; // How far off the ideal score it is
 
     metricsList.forEach(m => {
       const risk = getRiskLevel(m.metric, m.score);
-      let severity = 0;
-      if (risk.level === 'Warning') severity = 1;
-      if (risk.level === 'Critical') severity = 2;
-      
-      if (severity > worstSeverity) {
-        worstSeverity = severity;
+      if (risk.level === 'Pass') return; // Only flag warnings/criticals
+
+      const isNegative = ["Toxicity", "Hallucination", "Bias", "Privacy", "Safety"].includes(m.metric);
+      // Ideal for negative is 1, ideal for positive is 10
+      const deviation = isNegative ? m.score - 1 : 10 - m.score;
+
+      if (deviation > maxDeviation) {
+        maxDeviation = deviation;
         worst = { ...m, risk };
       }
     });
 
-    return worstSeverity > 0 ? worst : null; // Only show warning if there's a warning/critical
+    return worst;
   }, [metricsList]);
+
+  const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 shadow-lg rounded-lg">
+          <p className="font-bold text-gray-900 dark:text-white">
+            {data.subject}: {data.originalScore}/10
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-300">
@@ -88,8 +110,10 @@ export default function EvaluationReport({ evaluationData }) {
             <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
               <PolarGrid stroke="#e5e7eb" />
               <PolarAngleAxis dataKey="subject" tick={{ fill: '#6b7280', fontSize: 12, fontWeight: 600 }} />
-              <PolarRadiusAxis angle={30} domain={[0, 10]} tick={{ fill: '#9ca3af', fontSize: 10 }} />
-              <Radar name="Score" dataKey="A" stroke="#2fae63" fill="#2fae63" fillOpacity={0.4} />
+              <PolarRadiusAxis angle={30} domain={[0, 10]} tick={false} axisLine={false} />
+              {/* Add Tooltip and change dataKey to plotScore */}
+              <Tooltip content={<CustomTooltip />} />
+              <Radar name="Score" dataKey="plotScore" stroke="#2fae63" fill="#2fae63" fillOpacity={0.4} />
             </RadarChart>
           </ResponsiveContainer>
         </div>
